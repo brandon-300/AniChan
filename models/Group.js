@@ -14,6 +14,9 @@ const GroupSchema = new mongoose.Schema({
   blacklist: { type: [String], default: [] },
   nsfw: { type: Boolean, default: false },
   cardsEnabled: { type: Boolean, default: false },
+  activeCardId: { type: String, default: null },
+  activeCardCode: { type: String, default: null },
+  activeCardExpiresAt: { type: Date, default: null },
   cardDropInterval: { type: Number, default: 0 },  // ms between drops
   lastDrop: { type: Number, default: 0 },
   messageCount: { type: Number, default: 0 },

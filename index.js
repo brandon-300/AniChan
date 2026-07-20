@@ -4,27 +4,66 @@ const qrcode = require('qrcode-terminal');
 const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
+const { safeGetQuotedMessage } = require('./utils/helpers');
 
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ MongoDB connected'))
-  .catch(err => console.error('❌ MongoDB error:', err));
-
-const client = new Client({
-  authStrategy: new LocalAuth(),
-  puppeteer: {
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  }
+process.on('uncaughtException', (err) => {
+  console.error('💥 Uncaught Exception:', err);
 });
 
-// ─── Keep-alive HTTP server (required by Render, also used for pinging) ──────
-const http = require('http');
-const PORT = process.env.PORT || 3000;
-http.createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('Ani-Chan Bot is alive');
-}).listen(PORT, () => console.log(`🌐 Health server on port ${PORT}`));
+process.on('unhandledRejection', (reason) => {
+  console.error('💥 Unhandled Rejection:', reason);
+});
 
-const PREFIX = process.env.PREFIX || '.';
+const mongoOptions = {
+  serverSelectionTimeoutMS: 10000,
+  connectTimeoutMS: 10000,
+};
+
+async function connectMongo() {
+  try {
+    await mongoose.connect(process.env.MONGO_URI, mongoOptions);
+    console.log('✅ MongoDB connected');
+  } catch (err) {
+    console.error('❌ MongoDB error:', err.message);
+    setTimeout(connectMongo, 15000);
+  }
+}
+
+connectMongo();
+
+const clientOptions = {
+  authStrategy: new LocalAuth(),
+  puppeteer: {
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/data/data/com.termux/files/usr/bin/chromium-browser',
+    headless: true,
+    timeout: 60000,
+    protocolTimeout: 60000,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu',
+      '--disable-extensions',
+      '--disable-background-networking',
+      '--disable-background-timer-throttling',
+      '--disable-renderer-backgrounding',
+      '--no-first-run',
+      '--no-zygote'
+    ],
+  }
+};
+
+if (process.env.BOT_NUMBER) {
+  clientOptions.pairWithPhoneNumber = {
+    phoneNumber: process.env.BOT_NUMBER,
+    showNotification: true,
+    intervalMs: 180000,
+  };
+}
+
+const client = new Client(clientOptions);
+
+const PREFIX = process.env.BOT_PREFIX || '.';
 const BOT_NAME = process.env.BOT_NAME || 'Ani-Chan Bot';
 
 const commands = {};
@@ -34,7 +73,9 @@ fs.readdirSync(commandDir).forEach(file => {
   if (!file.endsWith('.js')) return;
   const module = require(path.join(commandDir, file));
   Object.entries(module).forEach(([name, fn]) => {
-    commands[name.toLowerCase()] = fn;
+    if (typeof fn === 'function' && !name.startsWith('_')) {
+      commands[name.toLowerCase()] = fn;
+    }
   });
 });
 
@@ -80,23 +121,155 @@ Type *${PREFIX}<command>* to use one.`;
   await msg.reply(menu);
 }
 
+let reconnectTimer = null;
+let cardDropsStarted = false;
+let whatsappStarting = false;
+let currentState = null;
+
+// Wait for the connection to look stable before running a command, instead of
+// launching straight into a mid-reconnect window and failing. Cheap when
+// already connected (returns almost immediately); only actually waits during
+// the reconnect windows that cause the "r" / connection-hiccup failures.
+async function waitForStableConnection(maxWaitMs = 10000) {
+  const start = Date.now();
+  while (Date.now() - start < maxWaitMs) {
+    try {
+      const state = await client.getState();
+      currentState = state;
+      if (state === 'CONNECTED') return true;
+    } catch {
+      // getState() itself can hit the same transient glitch — treat as
+      // "not ready yet" and keep polling rather than aborting immediately.
+    }
+    await new Promise(r => setTimeout(r, 500));
+  }
+  return false;
+}
+
+function scheduleReconnect(reason) {
+  console.log('❌ WhatsApp disconnected:', reason);
+
+  if (reconnectTimer) return;
+
+  reconnectTimer = setTimeout(async () => {
+    reconnectTimer = null;
+    try {
+      console.log('🔄 Reinitializing client in 5 seconds...');
+      whatsappStarting = true;
+      await client.initialize();
+    } catch (err) {
+      console.error('Reconnect failed:', err);
+      whatsappStarting = false;
+      scheduleReconnect('reconnect-failed');
+    }
+  }, 5000);
+}
+
+async function startWhatsApp() {
+  if (whatsappStarting) return;
+  whatsappStarting = true;
+
+  try {
+    await client.initialize();
+  } catch (err) {
+    console.error('❌ WhatsApp initialize failed:', err.message);
+    whatsappStarting = false;
+    setTimeout(startWhatsApp, 10000);
+  }
+}
+
+client.on('code', (code) => {
+  console.log('');
+  console.log('╔════════════════════════════════╗');
+  console.log(`  🔗 Pairing code: ${code}`);
+  console.log('  Enter in WhatsApp: Settings →');
+  console.log('  Linked Devices → Link with phone');
+  console.log('  number instead');
+  console.log('╚════════════════════════════════╝');
+  console.log('');
+});
+
 client.on('qr', qr => {
-  console.log('📱 Scan this QR code:');
+  console.log('📱 Or scan this QR code:');
   qrcode.generate(qr, { small: true });
 });
 
+client.on('authenticated', () => {
+  console.log('✅ WhatsApp authenticated');
+});
+
+client.on('auth_failure', (msg) => {
+  console.error('❌ Authentication failed:', msg);
+});
+
+client.on('loading_screen', (percent, message) => {
+  console.log(`Loading ${percent}% - ${message}`);
+});
+
+client.on('change_state', (state) => {
+  console.log('📡 State:', state);
+  currentState = state;
+});
+
+client.on('disconnected', (reason) => {
+  whatsappStarting = false;
+  scheduleReconnect(reason);
+});
+
+client.on('error', (err) => {
+  console.error('Client error:', err);
+});
+
 client.on('ready', () => {
+  whatsappStarting = false;
+
   console.log(`
 ╭━━★彡 ${BOT_NAME} is ONLINE 彡★━━╮
 ┃  Prefix : ${PREFIX}
 ┃  Commands: ${Object.keys(commands).length}
 ╰━━━━━━━━━━━━━━━━━━━━━━╯
   `);
+
+  if (!cardDropsStarted) {
+    cardDropsStarted = true;
+    const { _initCardDrops } = require('./commands/cards');
+    if (_initCardDrops) {
+      _initCardDrops(client).catch(err => console.error('Card drop resume error:', err.message));
+    }
+  }
 });
 
-client.on('message', async (msg) => {
+// Per-chat command queue
+const commandQueues = new Map();
+
+function enqueueCommand(chatId, task) {
+  const previous = commandQueues.get(chatId) || Promise.resolve();
+
+  const next = previous
+    .then(task)
+    .catch(err => console.error('Queue error:', err))
+    .finally(() => {
+      if (commandQueues.get(chatId) === next) {
+        commandQueues.delete(chatId);
+      }
+    });
+
+  commandQueues.set(chatId, next);
+  return next;
+}
+
+client.on('message', (msg) => {
+  enqueueCommand(msg.from, async () => {
   try {
     const body = msg.body || '';
+
+    const stable = await waitForStableConnection();
+    if (!stable) {
+      if (body.startsWith(PREFIX)) {
+        await msg.reply('⚠️ WhatsApp connection is unstable right now — please try again in a moment.');
+      }
+      return;
+    }
 
     if (!body.startsWith(PREFIX)) {
       const mentionsBot = msg.mentionedIds &&
@@ -104,8 +277,8 @@ client.on('message', async (msg) => {
 
       let repliedToBot = false;
       if (!mentionsBot && msg.hasQuotedMsg) {
-        const quoted = await msg.getQuotedMessage();
-        repliedToBot = quoted.fromMe;
+        const quoted = await safeGetQuotedMessage(msg).catch(() => null);
+        repliedToBot = quoted ? quoted.fromMe : false;
       }
 
       if (mentionsBot || repliedToBot) {
@@ -118,6 +291,17 @@ client.on('message', async (msg) => {
     let command = args.shift().toLowerCase();
 
     if (aliases[command]) command = aliases[command];
+
+    if (command === 'menu' || command === 'help') {
+      return await sendQuickMenu(msg);
+    }
+
+    if (command === 'antilink' && args[0]?.toLowerCase() === 'action') {
+      args.shift();
+      if (commands['antilinkaction']) {
+        return await commands['antilinkaction'](client, msg, args);
+      }
+    }
 
     if (command === 'guild' && args.length > 0) {
       const sub = `guild_${args.shift().toLowerCase()}`;
@@ -132,50 +316,123 @@ client.on('message', async (msg) => {
       }
     }
 
-    if (!commands[command]) return;
+    if (!commands[command]) {
+      return await msg.reply(`❓ Unknown command: *${PREFIX}${command}*\nType *${PREFIX}menu* to see what's available.`);
+    }
 
     await commands[command](client, msg, args);
-  } catch (err) {
-    console.error('Command error:', err);
-    msg.reply('❌ An error occurred. Please try again.');
-  }
+} catch (err) {
+  console.error('Command error:', err);
+  await msg.reply('❌ An error occurred. Please try again.');
+}
+  });
 });
 
 client.on('group_join', async (notification) => {
-  const { commands: cmds } = require('./commands/admin');
-  if (cmds && cmds.onJoin) await cmds.onJoin(client, notification);
-});
-
-client.on('group_leave', async (notification) => {
-  const { commands: cmds } = require('./commands/admin');
-  if (cmds && cmds.onLeave) await cmds.onLeave(client, notification);
-});
-
-client.on('message', async (msg) => {
-  const Group = require('./models/Group');
-  const chat = await msg.getChat();
-  if (!chat.isGroup) return;
-
-  const group = await Group.findOne({ id: chat.id._serialized });
-  if (!group || !group.antilink) return;
-
-  const hasLink = /(https?:\/\/|wa\.me|chat\.whatsapp\.com)/i.test(msg.body);
-  if (!hasLink) return;
-
-  const contact = await msg.getContact();
-  const isAdmin = chat.participants.find(
-    p => p.id._serialized === contact.id._serialized && p.isAdmin
-  );
-  if (isAdmin) return;
-
-  await msg.delete(true);
-  const action = group.antilinkAction || 'warn';
-  if (action === 'kick') {
-    await chat.removeParticipants([contact.id._serialized]);
-    chat.sendMessage(`🚫 @${contact.number} was kicked for sending a link.`, { mentions: [contact] });
-  } else {
-    chat.sendMessage(`⚠️ @${contact.number} don't send links here!`, { mentions: [contact] });
+  try {
+    const { commands: cmds } = require('./commands/admin');
+    if (cmds && cmds.onJoin) await cmds.onJoin(client, notification);
+  } catch (err) {
+    console.error('group_join error:', err.message);
   }
 });
 
-client.initialize();
+client.on('group_leave', async (notification) => {
+  try {
+    const { commands: cmds } = require('./commands/admin');
+    if (cmds && cmds.onLeave) await cmds.onLeave(client, notification);
+  } catch (err) {
+    console.error('group_leave error:', err.message);
+  }
+});
+
+client.on('message', async (msg) => {
+  if (!msg.from.endsWith('@g.us')) return;
+
+  const senderId = msg.author || msg.from;
+
+  try {
+    const Group = require('./models/Group');
+    await Group.findOneAndUpdate(
+      { id: msg.from },
+      { $inc: { messageCount: 1, [`activityLog.${senderId}`]: 1 } },
+      { upsert: true }
+    );
+  } catch (err) {
+    console.error('Activity tracking error:', err.message);
+  }
+});
+
+client.on('message', async (msg) => {
+  try {
+    // Cheap checks first — most messages never reach getChat()/DB at all.
+    if (!msg.from.endsWith('@g.us')) return;
+    if (!msg.body) return;
+
+    const hasLink = /(https?:\/\/|wa\.me|chat\.whatsapp\.com)/i.test(msg.body);
+    if (!hasLink) return;
+
+    let chat;
+    try {
+      chat = await msg.getChat();
+    } catch (err) {
+      console.error('Antilink: could not get chat, skipping:', err.message);
+      return;
+    }
+    if (!chat.isGroup) return;
+
+    const Group = require('./models/Group');
+    const group = await Group.findOne({ id: chat.id._serialized });
+    if (!group?.antilink) return;
+
+    const contact = await msg.getContact();
+    const isAdmin = chat.participants.some(
+      p => p.id._serialized === contact.id._serialized && p.isAdmin
+    );
+    if (isAdmin) return;
+
+    const action = group.antilinkAction || 'warn';
+
+    if (action === 'kick') {
+      try {
+        await chat.removeParticipants([contact.id._serialized]);
+        await msg.reply(
+          `🚫 @${contact.id.user} was kicked for sending a link.`,
+          undefined,
+          { mentions: [contact.id._serialized] }
+        );
+      } catch (err) {
+        console.error('Antilink: kick failed:', err.message);
+        await msg.reply(
+          `⚠️ @${contact.id.user} sent a link but couldn't be kicked (am I an admin?).`,
+          undefined,
+          { mentions: [contact.id._serialized] }
+        );
+      }
+    } else {
+      await msg.reply(
+        `⚠️ @${contact.id.user} don't send links here!`,
+        undefined,
+        { mentions: [contact.id._serialized] }
+      );
+    }
+
+    try {
+      await msg.delete(true);
+    } catch (err) {
+      console.error('Antilink: delete failed:', err.message);
+    }
+  } catch (err) {
+    console.error('Antilink error:', err.stack || err.message || err);
+  }
+});
+
+setInterval(() => {
+  try {
+    console.log(`💚 Heartbeat: ${new Date().toLocaleString()}`);
+  } catch (err) {
+    console.error('Heartbeat error:', err.message);
+  }
+}, 60000);
+
+startWhatsApp();
