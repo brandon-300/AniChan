@@ -24,3 +24,4 @@ auth_info_baileys.old*/
 # Safety nets
 **/auth_info_baileys*/
 *.old-*/
+.env.backup
