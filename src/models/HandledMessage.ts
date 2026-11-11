@@ -1,4 +1,7 @@
 import mongoose from 'mongoose';
+
+// Type-only: models carry custom statics/methods and loosely-typed docs (migrated from JS).
+type AnyModel = mongoose.Model<any> & Record<string, any>;
 import { MESSAGE_CLAIM_TTL_HOURS } from '../utils/config.js';
 
 // One document per incoming WhatsApp message that a bot version has taken. The
@@ -11,4 +14,4 @@ const HandledMessageSchema = new mongoose.Schema({
   at: { type: Date, default: Date.now, expires: MESSAGE_CLAIM_TTL_HOURS * 60 * 60 },
 }, { versionKey: false });
 
-export default mongoose.models.HandledMessage || mongoose.model('HandledMessage', HandledMessageSchema);
+export default (mongoose.models.HandledMessage || mongoose.model('HandledMessage', HandledMessageSchema)) as AnyModel;

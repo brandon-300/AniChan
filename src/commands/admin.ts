@@ -89,7 +89,7 @@ function parseMuteDuration(raw) {
 // best-effort: a group that's gone or unreachable by the time we try to
 // announce it is an expected, already-fine outcome (the unmute itself
 // already succeeded), not something worth retrying the whole task over.
-async function performAutoUnmute(client, chatId, label, { wasOverdue = false } = {}) {
+async function performAutoUnmute(client, chatId, label, { wasOverdue = false }: any = {}) {
   await client.setMessagesAdminsOnly(chatId, false);
   const group = await getOrCreateGroup(chatId);
   group.isMuted = false;
@@ -186,7 +186,7 @@ async function _seedParticipants(client) {
 // next join/leave event has an up-to-date baseline — this runs regardless
 // of whether welcome/leave messages are even turned on for this group, so
 // the snapshot never goes stale just because a toggle is off.
-async function resolveJoinLeaveRecipients(client, chat, notification, { isJoin }) {
+async function resolveJoinLeaveRecipients(client, chat, notification, { isJoin }: any) {
   const chatId = chat.id._serialized;
   const currentIds = chat.participants.map(p => p.id._serialized);
   const previous = lastParticipants.get(chatId);
@@ -859,7 +859,7 @@ async tagall(client, msg, args) {
       .catch(err => { console.error('inactive: GroupActivity lookup failed:', err.message); return null; });
     const log = new Map((rows || []).map(r => [r.userId, r.count]));
 
-    const inactive = allIds.filter(id => !log.has(id) || log.get(id) < 5).slice(0, 10);
+    const inactive = allIds.filter(id => !log.has(id) || (log.get(id) as any) < 5).slice(0, 10);
     // Same fix as .activity — resolve to real names instead of showing raw ids.
     const names = await Promise.all(inactive.map(id => resolveNameById(client, id)));
 

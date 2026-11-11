@@ -11,6 +11,9 @@
  */
 
 import mongoose from 'mongoose';
+
+// Type-only: models carry custom statics/methods and loosely-typed docs (migrated from JS).
+type AnyModel = mongoose.Model<any> & Record<string, any>;
 import { BOT_OWNER } from '../utils/config.js';
 
 const AiConversationSchema = new mongoose.Schema({
@@ -167,7 +170,7 @@ async function switchPersona(chatId, senderId, newPersonaId) {
   return getConversation(chatId, senderId, newPersonaId);
 }
 
-const AiConversation = mongoose.model('AiConversation', AiConversationSchema);
+const AiConversation = mongoose.model('AiConversation', AiConversationSchema) as AnyModel;
 
 // Export the model and helper functions
 export { getConversation, addTurn, getHistory, switchPersona, isBotOwner };

@@ -133,7 +133,7 @@ function boardText(game, caption) {
 // .drop-triggered board updates reply to the .drop command itself (a real
 // quoted reply bubble) — unchanged from before, just text instead of a PNG
 // now. `mentions` is optional — only PvP turn prompts need it.
-async function sendBoard(msg, game, caption, mentions) {
+async function sendBoard(msg, game, caption, mentions?) {
   await msg.reply(boardText(game, caption), undefined, mentions ? { mentions } : undefined);
 }
 
@@ -141,7 +141,7 @@ async function sendBoard(msg, game, caption, mentions) {
 // one specific command (two different people's messages led here) — a
 // plain chat message, same as the "Players: ... Game start!" announcement
 // right before it.
-async function announceBoard(chat, game, caption, mentions) {
+async function announceBoard(chat, game, caption, mentions?) {
   await chat.sendMessage(boardText(game, caption), mentions ? { mentions } : undefined);
 }
 

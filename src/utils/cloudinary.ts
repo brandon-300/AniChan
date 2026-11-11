@@ -31,7 +31,7 @@ function isCloudConfigured() {
 // the same publicId on a later call overwrites the previous file in place
 // instead of piling up orphaned copies — e.g. a user changing their profile
 // picture reuses their own id.
-async function uploadToCloud(filePath, { folder, publicId, resourceType = 'image' } = {}) {
+async function uploadToCloud(filePath, { folder, publicId, resourceType = 'image' }: any = {}) {
   const operation = logger.start('api.cloudinary.upload', { folder, publicId, resourceType, input: 'file' });
   if (!configured) {
     operation.finish('failed', { error: new Error('Cloudinary is not configured') });
@@ -42,7 +42,7 @@ async function uploadToCloud(filePath, { folder, publicId, resourceType = 'image
       folder,
       public_id: publicId,
       overwrite: true,
-      resource_type: resourceType,
+      resource_type: resourceType as any,
     });
     operation.finish('success', { status: 'ok', publicId: result.public_id, version: result.version });
     return { url: result.secure_url, publicId: result.public_id, version: result.version };
@@ -75,15 +75,15 @@ async function deleteFromCloud(publicId, resourceType = 'image') {
 // stream instead, so the buffer goes straight to Cloudinary — no temp file
 // created, nothing to clean up on disk. The optional format setting lets
 // sticker imports guarantee the Cloudinary asset format is WebP.
-async function uploadBufferToCloud(buffer, { folder, publicId, resourceType = 'image', format } = {}) {
+async function uploadBufferToCloud(buffer, { folder, publicId, resourceType = 'image', format }: any = {}) {
   const operation = logger.start('api.cloudinary.upload_buffer', { folder, publicId, resourceType, format, bytes: Buffer.isBuffer(buffer) ? buffer.length : null });
   if (!configured) {
     operation.finish('failed', { error: new Error('Cloudinary is not configured') });
     throw new Error('Cloudinary is not configured — set CLOUDINARY_URL (or CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET) in .env');
   }
-  const uploadOptions = { folder, public_id: publicId, overwrite: true, resource_type: resourceType };
+  const uploadOptions: any = { folder, public_id: publicId, overwrite: true, resource_type: resourceType };
   if (format) uploadOptions.format = format;
-  return new Promise((resolve, reject) => {
+  return new Promise<any>((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       uploadOptions,
       (err, result) => {

@@ -118,7 +118,7 @@ const GRID_PER_PAGE = 12; // 3 cols x 4 rows
 function buildCollectionGridHtml(cells) {
   const cols = Math.min(GRID_COLS, cells.length);
   const cellsHtml = cells
-    .map(({ uri, index }) => `<div class="cell"><span class="idx">#${index}</span><img src="${uri}"></div>`)
+    .map(({ uri, index }: any) => `<div class="cell"><span class="idx">#${index}</span><img src="${uri}"></div>`)
     .join('');
   return `<!DOCTYPE html>
 <html>
@@ -775,7 +775,7 @@ const cards = await OwnedCard.find({
   // .vlb — leaderboard by total collection value (Phase 7)
   async vlb(client, msg, args) {
     const cards = await OwnedCard.find();
-    const totals = {};
+    const totals: Record<string, any> = {};
     for (const c of cards) {
       totals[c.ownerId] = (totals[c.ownerId] || 0) + cardValue(c.tier);
     }
@@ -792,7 +792,7 @@ const cards = await OwnedCard.find({
   // .tlb — leaderboard by the single highest-tier card each person owns (Phase 7)
   async tlb(client, msg, args) {
     const cards = await OwnedCard.find();
-    const best = {};
+    const best: Record<string, any> = {};
     for (const c of cards) {
       const v = cardValue(c.tier);
       if (!best[c.ownerId] || v > best[c.ownerId].value) {
@@ -812,7 +812,7 @@ const cards = await OwnedCard.find({
   // .sslb — leaderboard by number of SS/SSS cards owned (Phase 7)
   async sslb(client, msg, args) {
     const cards = await OwnedCard.find({ tier: { $in: ['SS', 'SSS'] } });
-    const counts = {};
+    const counts: Record<string, any> = {};
     for (const c of cards) {
       counts[c.ownerId] = (counts[c.ownerId] || 0) + 1;
     }
@@ -841,7 +841,7 @@ const cards = await OwnedCard.find({
       ownedBySeries[c.ownerId][c.series] = (ownedBySeries[c.ownerId][c.series] || 0) + 1;
     }
 
-    const best = {};
+    const best: Record<string, any> = {};
     for (const [ownerId, seriesCounts] of Object.entries(ownedBySeries)) {
       for (const [series, count] of Object.entries(seriesCounts)) {
         const total = seriesTotals[series];
@@ -1064,7 +1064,7 @@ const cards = await OwnedCard.find({
     if (!slice.length) return msg.reply(`❌ No listings on page ${page}. You have ${totalPages} page(s) total.`);
 
     let text = `🛒 *Card Shop* [Page ${page}/${totalPages}] (${entries.length} total)\n\n`;
-    slice.forEach(({ kind, card }) => {
+    slice.forEach(({ kind, card }: any) => {
       if (kind === 'listing') {
         text += `${tierEmoji(card.tier)} *${card.name}* [${card.tier}] — 💰 ${formatNum(card.price)} coins\n🆔 ${card.code ? `\`${card.code}\`` : 'pending'} • Seller: @${card.ownerId.split('@')[0]}\nUse *.claim ${card.code}* to buy!\n\n`;
       } else {
@@ -2227,7 +2227,7 @@ const cards = await OwnedCard.find({
     if (!arg) {
       let text = `🎴 *Tier List*\n\n`;
       let prevCumulative = 0;
-      TIER_DROP_RATES.forEach(({ tier, cumulative }) => {
+      TIER_DROP_RATES.forEach(({ tier, cumulative }: any) => {
         const odds = (cumulative - prevCumulative).toFixed(1).replace(/\.0$/, '');
         text += `${tierEmoji(tier)} *${tier}* — Drop chance: ${odds}% • Value: 💰 ${cardValue(tier).toLocaleString()}\n`;
         prevCumulative = cumulative;

@@ -108,7 +108,7 @@ const IMG_H = MARGIN_TOP + BOARD_PX_H + MARGIN_BOTTOM;
  *   recently dropped piece, highlighted with a ring.
  * @returns {Buffer} PNG file buffer
  */
-function renderBoardImage(board, opts = {}) {
+function renderBoardImage(board, opts: any = {}) {
   const lastMove = opts.lastMove || null;
 
   const pixels = Buffer.alloc(IMG_W * IMG_H * 3);

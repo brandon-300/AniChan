@@ -9,6 +9,9 @@
 // link came from (informational). `title` is stored so future features can
 // show what a link was without refetching.
 import mongoose from 'mongoose';
+
+// Type-only: models carry custom statics/methods and loosely-typed docs (migrated from JS).
+type AnyModel = mongoose.Model<any> & Record<string, any>;
 const SentNsfwLinkSchema = new mongoose.Schema({
   source: { type: String, required: true, enum: ['ehentai', 'nhentai'] },
   url: { type: String, required: true },
@@ -21,4 +24,4 @@ const SentNsfwLinkSchema = new mongoose.Schema({
 // The same gallery must never be flagged twice, even across restarts/queries
 SentNsfwLinkSchema.index({ url: 1 }, { unique: true });
 
-export default mongoose.model('SentNsfwLink', SentNsfwLinkSchema);
+export default mongoose.model('SentNsfwLink', SentNsfwLinkSchema) as AnyModel;

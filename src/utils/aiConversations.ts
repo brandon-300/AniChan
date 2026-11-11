@@ -35,7 +35,7 @@ function expiryDate() {
 // Returns this (chat, sender, persona) conversation as { role, content }[] for
 // gemini.js: empty for a new conversation, or one that has expired. Reading
 // never extends the expiry; only a new exchange does.
-async function getConversationHistory({ chatId, senderId, personaId }) {
+async function getConversationHistory({ chatId, senderId, personaId }: any) {
   const owner = isOwner(senderId);
   let convo;
   try {
@@ -65,9 +65,9 @@ async function getConversationHistory({ chatId, senderId, personaId }) {
 // Appends BOTH sides of one exchange in a single atomic $push, trims to the
 // history limit, and moves the expiry to "now + 7 days" (or removes it for the
 // owner). Never throws: a failed save must not break the reply.
-async function appendConversationTurn({ chatId, senderId, personaId, userContent, assistantContent }) {
+async function appendConversationTurn({ chatId, senderId, personaId, userContent, assistantContent }: any) {
   const owner = isOwner(senderId);
-  const update = {
+  const update: any = {
     $push: {
       messages: {
         $each: [
@@ -102,7 +102,7 @@ async function appendConversationTurn({ chatId, senderId, personaId, userContent
   let refreshed = 0;
   if (!owner && AI_HISTORY_EXPIRY_SCOPE === 'user') {
     try {
-      const result = await AiConversation.updateMany({ senderId }, { $set: { expiresAt } });
+      const result: any = await AiConversation.updateMany({ senderId }, { $set: { expiresAt } });
       refreshed = Number(result?.modifiedCount ?? result?.nModified ?? 0);
     } catch (err) {
       logger.error('ai.history.refresh.failed', err, { personaId });
@@ -130,7 +130,7 @@ async function migrateLegacyConversations(personaId) {
   const legacy = await AiConversation.find({ personaId: { $exists: false } }).lean();
   let moved = 0;
   for (const doc of legacy) {
-    const update = { $set: { personaId } };
+    const update: any = { $set: { personaId } };
     if (isOwner(doc.senderId)) update.$unset = { expiresAt: '' };
     else update.$set.expiresAt = expiryDate();
     try {

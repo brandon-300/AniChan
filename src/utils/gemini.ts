@@ -40,7 +40,7 @@ const REQUEST_TIMEOUT_MS = 45000;
 
 function assertKey() {
   if (!GEMINI_API_KEY) {
-    const err = new Error('GEMINI_API_KEY is not set in .env');
+    const err: any = new Error('GEMINI_API_KEY is not set in .env');
     err.code = 'NO_GEMINI_KEY';
     throw err;
   }
@@ -67,7 +67,7 @@ function extractTextOrThrow(res) {
     // filters, which comes back as a candidate with no parts and a
     // finishReason instead of an HTTP error.
     const reason = candidate?.finishReason;
-    const err = new Error(reason ? `Gemini returned no text (finishReason: ${reason})` : 'Gemini returned an empty response');
+    const err: any = new Error(reason ? `Gemini returned no text (finishReason: ${reason})` : 'Gemini returned an empty response');
     err.code = 'EMPTY_RESPONSE';
     throw err;
   }
@@ -132,7 +132,7 @@ function buildGenerationConfig(maxOutputTokens, model) {
 // TEXT_MODEL, so every existing call site (ai.js, etc.) is unaffected.
 // bypassGate is set only by the background sticker-analysis queue, the one
 // caller allowed to use Gemini while it is reserved (see utils/geminiGate.js).
-async function generateText({ systemPrompt, history = [], prompt, maxOutputTokens = 2048, model = TEXT_MODEL, bypassGate = false }) {
+async function generateText({ systemPrompt, history = [], prompt, maxOutputTokens = 2048, model = TEXT_MODEL, bypassGate = false }: any) {
   geminiGate.assertAvailable({ bypass: bypassGate });
   assertKey();
 
@@ -142,7 +142,7 @@ async function generateText({ systemPrompt, history = [], prompt, maxOutputToken
   }));
   contents.push({ role: 'user', parts: [{ text: prompt }] });
 
-  const body = {
+  const body: any = {
     contents,
     generationConfig: buildGenerationConfig(maxOutputTokens, model),
   };
@@ -164,7 +164,7 @@ async function generateText({ systemPrompt, history = [], prompt, maxOutputToken
   } catch (err) {
     if (err.code === 'EMPTY_RESPONSE') throw err;
     const msg = extractApiErrorMessage(err);
-    const wrapped = new Error(`Gemini text generation failed: ${msg}`);
+    const wrapped: any = new Error(`Gemini text generation failed: ${msg}`);
     wrapped.code = 'GEMINI_TEXT_ERROR';
     wrapped.status = err.response?.status;
     throw wrapped;
@@ -180,13 +180,13 @@ async function generateText({ systemPrompt, history = [], prompt, maxOutputToken
 // re-sent on every follow-up message to keep the thread coherent.
 // bypassGate is set only by the background sticker-analysis queue, the one
 // caller allowed to use Gemini while it is reserved (see utils/geminiGate.js).
-async function generateVision({ systemPrompt, history = [], prompt, base64Image, mimeType, images = [], maxOutputTokens = 2048, bypassGate = false }) {
+async function generateVision({ systemPrompt, history = [], prompt, base64Image, mimeType, images = [], maxOutputTokens = 2048, bypassGate = false }: any) {
   geminiGate.assertAvailable({ bypass: bypassGate });
   assertKey();
 
   const visionImages = images.length ? images : (base64Image ? [{ base64: base64Image, mimeType }] : []);
   if (!visionImages.length) {
-    const err = new Error('generateVision called without an image');
+    const err: any = new Error('generateVision called without an image');
     err.code = 'NO_IMAGE_DATA';
     throw err;
   }
@@ -206,7 +206,7 @@ async function generateVision({ systemPrompt, history = [], prompt, base64Image,
     ],
   });
 
-  const body = {
+  const body: any = {
     contents,
     generationConfig: buildGenerationConfig(maxOutputTokens, TEXT_MODEL),
   };
@@ -228,7 +228,7 @@ async function generateVision({ systemPrompt, history = [], prompt, base64Image,
   } catch (err) {
     if (err.code === 'EMPTY_RESPONSE') throw err;
     const msg = extractApiErrorMessage(err);
-    const wrapped = new Error(`Gemini vision analysis failed: ${msg}`);
+    const wrapped: any = new Error(`Gemini vision analysis failed: ${msg}`);
     wrapped.code = 'GEMINI_VISION_ERROR';
     wrapped.status = err.response?.status;
     throw wrapped;
@@ -265,7 +265,7 @@ async function generateImage(prompt) {
 
     if (!inline?.data) {
       const reason = res.data?.candidates?.[0]?.finishReason;
-      const err = new Error(reason ? `Gemini returned no image (finishReason: ${reason})` : 'Gemini returned no image data');
+      const err: any = new Error(reason ? `Gemini returned no image (finishReason: ${reason})` : 'Gemini returned no image data');
       err.code = 'EMPTY_IMAGE';
       throw err;
     }
@@ -277,7 +277,7 @@ async function generateImage(prompt) {
   } catch (err) {
     if (err.code === 'EMPTY_IMAGE') throw err;
     const msg = extractApiErrorMessage(err);
-    const wrapped = new Error(`Gemini image generation failed: ${msg}`);
+    const wrapped: any = new Error(`Gemini image generation failed: ${msg}`);
     wrapped.code = 'GEMINI_IMAGE_ERROR';
     wrapped.status = err.response?.status;
     throw wrapped;
@@ -289,7 +289,7 @@ async function generateImage(prompt) {
 // base64 data directly in a generateContent request — no separate
 // transcription endpoint or file upload needed for short voice notes
 // (WhatsApp voice notes are almost always well under the ~20MB inline limit).
-async function transcribeAudio({ base64Audio, mimeType }) {
+async function transcribeAudio({ base64Audio, mimeType }: any) {
   geminiGate.assertAvailable();
   assertKey();
 
@@ -320,7 +320,7 @@ async function transcribeAudio({ base64Audio, mimeType }) {
   } catch (err) {
     if (err.code === 'EMPTY_RESPONSE') throw err;
     const msg = extractApiErrorMessage(err);
-    const wrapped = new Error(`Gemini transcription failed: ${msg}`);
+    const wrapped: any = new Error(`Gemini transcription failed: ${msg}`);
     wrapped.code = 'GEMINI_TRANSCRIBE_ERROR';
     wrapped.status = err.response?.status;
     throw wrapped;
@@ -394,14 +394,14 @@ async function generateStructured({
   maxOutputTokens = 1200,
   timeoutMs = REQUEST_TIMEOUT_MS,
   useGoogleSearch = false,
-}) {
+}: any) {
   geminiGate.assertAvailable();
   assertKey();
   if (typeof prompt !== 'string' || !prompt.trim()) throw new TypeError('generateStructured requires a non-empty prompt');
   if (!schema || typeof schema !== 'object') throw new TypeError('generateStructured requires a JSON schema');
 
-  const generationConfig = buildGenerationConfig(maxOutputTokens, model);
-  const body = { contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig };
+  const generationConfig: any = buildGenerationConfig(maxOutputTokens, model);
+  const body: any = { contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig };
   if (useGoogleSearch) {
     body.tools = [{ google_search: {} }];
     body.contents[0].parts[0].text = `${prompt}\n\nReply with ONLY one JSON object (no markdown, no commentary) with exactly these fields: ${Object.keys(schema.properties || {}).join(', ')}.`;
@@ -418,14 +418,14 @@ async function generateStructured({
     });
     const parsed = parseJsonObject(extractTextOrThrow(res));
     if (!parsed || typeof parsed !== 'object') {
-      const err = new Error('Gemini returned invalid JSON');
+      const err: any = new Error('Gemini returned invalid JSON');
       err.code = 'INVALID_STRUCTURED_JSON';
       throw err;
     }
     return parsed;
   } catch (err) {
     if (['EMPTY_RESPONSE', 'INVALID_STRUCTURED_JSON'].includes(err.code)) throw err;
-    const wrapped = new Error(`Gemini structured generation failed: ${extractApiErrorMessage(err)}`);
+    const wrapped: any = new Error(`Gemini structured generation failed: ${extractApiErrorMessage(err)}`);
     wrapped.code = 'GEMINI_STRUCTURED_ERROR';
     wrapped.status = err.response?.status || err.status;
     wrapped.cause = err;

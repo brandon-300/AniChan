@@ -116,7 +116,7 @@ function turnPrompt(symbol, playerId) {
 // This is the ONE piece of the Connect 4 redesign NOT carried over here —
 // per Brandon, Tic Tac Toe keeps its PNG board image. Everything else
 // (lobby, join, startbot, the real turn timer) matches Connect 4 exactly.
-async function sendBoard(msg, game, caption, mentions) {
+async function sendBoard(msg, game, caption, mentions?) {
   const opts = mentions ? { caption, mentions } : { caption };
   try {
     const png = renderBoardImage(game.board, { symbols: game.symbols, lastMove: game.lastMove });
@@ -133,7 +133,7 @@ async function sendBoard(msg, game, caption, mentions) {
 // whichever of two people's .ttt join filled the lobby; a skip isn't
 // triggered by any message at all) — a plain chat message, same reasoning
 // as connect4.js's announceBoard.
-async function announceBoard(chat, game, caption, mentions) {
+async function announceBoard(chat, game, caption, mentions?) {
   const opts = mentions ? { caption, mentions } : { caption };
   try {
     const png = renderBoardImage(game.board, { symbols: game.symbols, lastMove: game.lastMove });

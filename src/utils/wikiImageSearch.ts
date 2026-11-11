@@ -113,7 +113,7 @@ function isConfigured() {
   return true;
 }
 
-function toCandidate({ imageUrl, sourcePageUrl, title, snippet, displayLink, width, height }) {
+function toCandidate({ imageUrl, sourcePageUrl, title, snippet, displayLink, width, height }: any) {
   if (!imageUrl || !/^https?:\/\//i.test(imageUrl)) return null;
   return {
     imageUrl: imageUrl.replace(/^http:\/\//i, 'https://'),
@@ -152,9 +152,9 @@ async function searchOneFandomWiki(host, label, query, nameForFilter) {
     // Title filter: kills cross-wiki noise like One Piece SBS headers or
     // a "Protagonist" wiki page for a different character with a shared
     // voice actor. A page about this character almost always names them.
-    .filter(p => !needle || String(p.title || '').toLowerCase().includes(needle))
-    .filter(p => p.original && p.original.source)
-    .map(p => toCandidate({
+    .filter((p: any) => !needle || String(p.title || '').toLowerCase().includes(needle))
+    .filter((p: any) => p.original && p.original.source)
+    .map((p: any) => toCandidate({
       imageUrl: p.original.source,
       sourcePageUrl: p.fullurl || `https://${host}/wiki/${encodeURIComponent(p.title)}`,
       title: p.title,
@@ -253,8 +253,8 @@ async function searchWikipedia(query) {
   if (!pages) return [];
 
   return Object.values(pages)
-    .filter(p => p.original && p.original.source)
-    .map(p => toCandidate({
+    .filter((p: any) => p.original && p.original.source)
+    .map((p: any) => toCandidate({
       imageUrl: p.original.source,
       sourcePageUrl: p.fullurl || `https://${WIKI_LANG}.wikipedia.org/wiki/${encodeURIComponent(p.title)}`,
       title: p.title,
@@ -296,7 +296,7 @@ async function searchByTerm(term, series) {
   }
 
   if (failures === sources.length) {
-    const wrapped = new Error(`All image sources failed — connection likely down: ${failureNotes.join(' | ')}`);
+    const wrapped: any = new Error(`All image sources failed — connection likely down: ${failureNotes.join(' | ')}`);
     wrapped.code = 'WIKI_SEARCH_ERROR';
     throw wrapped;
   }

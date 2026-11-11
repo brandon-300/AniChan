@@ -15,6 +15,9 @@
 // (the overwhelming majority) is deleted just as before, one write later
 // than it used to be.
 import mongoose from 'mongoose';
+
+// Type-only: models carry custom statics/methods and loosely-typed docs (migrated from JS).
+type AnyModel = mongoose.Model<any> & Record<string, any>;
 const ScheduledTaskSchema = new mongoose.Schema({
   // What kind of task this is. The scheduler looks up the handler that was
   // registered for this type via scheduler.registerHandler(type, fn) —
@@ -61,4 +64,4 @@ const ScheduledTaskSchema = new mongoose.Schema({
 // ones) to find the soonest 'pending' one.
 ScheduledTaskSchema.index({ status: 1, runAt: 1 });
 
-export default mongoose.model('ScheduledTask', ScheduledTaskSchema);
+export default mongoose.model('ScheduledTask', ScheduledTaskSchema) as AnyModel;

@@ -126,7 +126,7 @@ async function uploadOnceToProvider(provider, buffer, filename) {
 
   const text = (await res.text()).trim();
   if (!res.ok) {
-    const err = new Error(`HTTP ${res.status}${text ? ` (${text.replace(/\s+/g, ' ').slice(0, 80)})` : ''}`);
+    const err: any = new Error(`HTTP ${res.status}${text ? ` (${text.replace(/\s+/g, ' ').slice(0, 80)})` : ''}`);
     err.status = res.status;
     throw err;
   }
@@ -514,7 +514,7 @@ export default {
         let mode = 'crop'; // safe fallback if probing fails for any reason
 
         try {
-          const { width: srcW, height: srcH } = await probeDimensions(inputPath);
+          const { width: srcW, height: srcH } = (await probeDimensions(inputPath)) as any;
           const scaleCover = Math.max(width / srcW, height / srcH);
           const scaledW = srcW * scaleCover;
           const scaledH = srcH * scaleCover;

@@ -94,7 +94,7 @@ function createReactionHandler({
   now = Date.now,
   rng = Math.random,
   schedule = defaultSchedule,
-} = {}) {
+}: any = {}) {
   const cfg = {
     enabled: settings.enabled ?? config.AI_REACT_TO_REACTIONS ?? true,
     chance: settings.chance ?? config.AI_REACT_CHANCE ?? 0.6,

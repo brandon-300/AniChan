@@ -1,5 +1,8 @@
 
 import mongoose from 'mongoose';
+
+// Type-only: models carry custom statics/methods and loosely-typed docs (migrated from JS).
+type AnyModel = mongoose.Model<any> & Record<string, any>;
 const PersonaAnalysisSchema = new mongoose.Schema({
   personaId: { type: String, required: true, trim: true },
   analysisVersion: { type: Number, default: 1, min: 1 },
@@ -72,4 +75,4 @@ AiStickerSchema.index({ personaId: 1, analysisStatus: 1, createdAt: -1 }, { name
 AiStickerSchema.index({ hash: 1 }, { name: 'ai_sticker_hash_lookup' });
 AiStickerSchema.index({ animeId: 1, hash: 1 }, { name: 'ai_sticker_anime_hash_lookup' });
 
-export default mongoose.models.AiSticker || mongoose.model('AiSticker', AiStickerSchema);
+export default (mongoose.models.AiSticker || mongoose.model('AiSticker', AiStickerSchema)) as AnyModel;

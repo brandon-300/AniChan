@@ -102,7 +102,7 @@ function minimax(chess, depth, alpha, beta, maximizing, color) {
 // search would stall every other command in the chat, not just the chess
 // game, for as long as it runs. Defaults are deliberately conservative for
 // a budget Android phone (Termux) rather than tuned for maximum strength.
-function getBestMove(chess, { maxDepth = 3, timeLimitMs = 2500 } = {}) {
+function getBestMove(chess, { maxDepth = 3, timeLimitMs = 2500 }: any = {}) {
   const color = chess.turn();
   const startTime = Date.now();
   let bestMoveOverall = null;

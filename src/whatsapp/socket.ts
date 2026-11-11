@@ -16,7 +16,7 @@ import identity from './identity.js';
 import { WHATSAPP_LOG_LEVEL } from '../utils/config.js';
 
 // Logger configuration
-const logger = pino({
+const logger = (pino as any)({
   level: WHATSAPP_LOG_LEVEL,
 });
 
@@ -36,6 +36,11 @@ retryCacheCleanup.unref?.();
  * Simple cache implementation for Termux
  */
 class SimpleCache {
+  declare store: any;
+  declare stdTTL: any;
+  declare checkperiod: any;
+  declare interval: any;
+
   constructor(stdTTL = 600, checkperiod = 60) {
     this.store = new Map();
     this.stdTTL = stdTTL;
@@ -79,6 +84,10 @@ const simpleMsgRetryCache = new SimpleCache(600, 60);
  * Stores recently sent/received messages for retrieval
  */
 class MessageStore {
+  declare store: any;
+  declare maxSize: any;
+  declare ttlMs: any;
+
   constructor() {
     this.store = new Map();
     this.maxSize = 1000;
@@ -131,6 +140,26 @@ const messageStore = new MessageStore();
  * Singleton that manages the Baileys WebSocket connection
  */
 class SocketManager {
+  declare info: any;
+  declare sock: any;
+  declare isConnected: any;
+  declare isConnecting: any;
+  declare reconnectAttempts: any;
+  declare maxReconnectAttempts: any;
+  declare reconnectDelay: any;
+  declare reconnectTimeout: any;
+  declare messageQueue: any;
+  declare eventHandlers: any;
+  declare sentMessages: any;
+  declare eventHandlersSetup: any;
+  declare isShuttingDown: any;
+  declare pairingCodeRequested: any;
+  declare backgroundInitialized: any;
+  declare whatsappRevision: any;
+  declare static instance: any;
+  declare socketCreatedListeners: any;
+  declare upsertChain: any;
+
   constructor() {
     this.sock = null;
     this.isConnected = false;
@@ -225,7 +254,7 @@ class SocketManager {
         const waWebVersionResult = await fetchLatestWaWebVersion({
           timeout: 10000,
           signal: controller.signal
-        });
+        } as any);
         
         clearTimeout(timeoutId);
         
@@ -246,7 +275,7 @@ class SocketManager {
           const baileysVersionResult = await fetchLatestBaileysVersion({
             timeout: 10000,
             signal: controller.signal
-          });
+          } as any);
           
           clearTimeout(timeoutId);
           
@@ -742,7 +771,7 @@ class SocketManager {
 
     // Every message type carries its own contextInfo (quote + mentions).
     let contextInfo = null;
-    for (const value of Object.values(message)) {
+    for (const value of Object.values(message) as any[]) {
       if (value && typeof value === 'object' && value.contextInfo) { contextInfo = value.contextInfo; break; }
     }
     const quoted = contextInfo?.quotedMessage || null;

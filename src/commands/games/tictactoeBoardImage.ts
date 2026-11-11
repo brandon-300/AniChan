@@ -120,7 +120,7 @@ const IMG_SIZE = BOARD_PX + MARGIN * 2;
  *   highlight as the most recent move.
  * @returns {Buffer} PNG file buffer
  */
-function renderBoardImage(board, opts = {}) {
+function renderBoardImage(board, opts: any = {}) {
   const symbols = opts.symbols || ['❌', '⭕'];
   const lastMove = opts.lastMove || null;
 

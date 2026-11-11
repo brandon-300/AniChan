@@ -396,7 +396,7 @@ function topicStreak(question, recentAnswers) {
   for (let i = (recentAnswers || []).length - 1; i >= 0; i--) {
     const previous = recentAnswers[i];
     if (previous.answer === 'yes') break;
-    const overlap = [...topicsOf(previous.question)].find(id => wanted.has(id));
+    const overlap: any = [...topicsOf(previous.question)].find(id => wanted.has(id));
     if (!overlap) break;
     shared = shared || overlap;
     count += 1;

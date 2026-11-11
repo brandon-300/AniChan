@@ -1,5 +1,8 @@
 
 import mongoose from 'mongoose';
+
+// Type-only: models carry custom statics/methods and loosely-typed docs (migrated from JS).
+type AnyModel = mongoose.Model<any> & Record<string, any>;
 const AiStickerMessageSchema = new mongoose.Schema({
   messageId: { type: String, required: true, unique: true, trim: true },
   chatId: { type: String, required: true, trim: true },
@@ -9,4 +12,4 @@ const AiStickerMessageSchema = new mongoose.Schema({
   expiresAt: { type: Date, required: true, expires: 0 },
 }, { timestamps: true });
 
-export default mongoose.models.AiStickerMessage || mongoose.model('AiStickerMessage', AiStickerMessageSchema);
+export default (mongoose.models.AiStickerMessage || mongoose.model('AiStickerMessage', AiStickerMessageSchema)) as AnyModel;

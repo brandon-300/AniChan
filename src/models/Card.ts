@@ -1,6 +1,9 @@
 
 // ─── Master Card Catalogue ────────────────────────────────────────────────────
 import mongoose from 'mongoose';
+
+// Type-only: models carry custom statics/methods and loosely-typed docs (migrated from JS).
+type AnyModel = mongoose.Model<any> & Record<string, any>;
 const CardCatalogueSchema = new mongoose.Schema({
   cardId: {
     type: String,
@@ -268,12 +271,12 @@ const CatalogueGrowthStateSchema = new mongoose.Schema({
   lastError: { type: String, default: null },
 });
 
-const CardCatalogue = mongoose.model('CardCatalogue', CardCatalogueSchema);
-const OwnedCard = mongoose.model('OwnedCard', OwnedCardSchema);
-const Auction = mongoose.model('Auction', AuctionSchema);
-const TradeRequest = mongoose.model('TradeRequest', TradeRequestSchema);
-const SaleRequest = mongoose.model('SaleRequest', SaleRequestSchema);
-const CatalogueGrowthState = mongoose.model('CatalogueGrowthState', CatalogueGrowthStateSchema);
+const CardCatalogue = mongoose.model('CardCatalogue', CardCatalogueSchema) as AnyModel;
+const OwnedCard = mongoose.model('OwnedCard', OwnedCardSchema) as AnyModel;
+const Auction = mongoose.model('Auction', AuctionSchema) as AnyModel;
+const TradeRequest = mongoose.model('TradeRequest', TradeRequestSchema) as AnyModel;
+const SaleRequest = mongoose.model('SaleRequest', SaleRequestSchema) as AnyModel;
+const CatalogueGrowthState = mongoose.model('CatalogueGrowthState', CatalogueGrowthStateSchema) as AnyModel;
 
 export { CardCatalogue, OwnedCard, Auction, TradeRequest, SaleRequest, CatalogueGrowthState };
 export default { CardCatalogue, OwnedCard, Auction, TradeRequest, SaleRequest, CatalogueGrowthState };

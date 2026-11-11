@@ -144,7 +144,7 @@ async function danbooruGet(path, params, attempt = 1) {
       `Danbooru request failed: ${path} status=${status ?? err.code ?? 'unknown'} ` +
         `${err.message}`
     );
-    const e = new Error(err.message);
+    const e: any = new Error(err.message);
     e.status = status;
     throw e;
   }
@@ -173,7 +173,7 @@ async function gelbooruGet(params, attempt = 1) {
       return gelbooruGet(params, attempt + 1);
     }
     console.error(`Gelbooru request failed: status=${status ?? err.code ?? 'unknown'} ${err.message}`);
-    const e = new Error(err.message);
+    const e: any = new Error(err.message);
     e.status = status;
     throw e;
   }
@@ -199,7 +199,7 @@ async function safebooruGet(params, attempt = 1) {
       return safebooruGet(params, attempt + 1);
     }
     console.error(`Safebooru request failed: status=${status ?? err.code ?? 'unknown'} ${err.message}`);
-    const e = new Error(err.message);
+    const e: any = new Error(err.message);
     e.status = status;
     throw e;
   }
@@ -235,7 +235,7 @@ function isStyleMismatch(post) {
   return tags.some((t) => STYLE_MISMATCH_TAGS.has(t));
 }
 
-function isUnsafeContent(post, tagString) {
+function isUnsafeContent(post, tagString?) {
   const tags = String(tagString || post.tag_string || '').split(/\s+/);
   return tags.some((t) => SAFETY_EXCLUDE_TAGS.has(t));
 }
@@ -492,7 +492,7 @@ const RANDOM_HARD_EXCLUDE = '-animated -animated_gif -video -webm -comic -4koma'
 const RANDOM_ALLOWED_EXT = new Set(['jpg', 'jpeg', 'png', 'webp']);
 const RANDOM_MAX_BYTES = 20 * 1024 * 1024; // WhatsApp-safe
 
-async function fetchRandomImage(tagSets, { ratingLetters = null } = {}) {
+async function fetchRandomImage(tagSets, { ratingLetters = null }: any = {}) {
   const sets = Array.isArray(tagSets) ? tagSets : [tagSets];
 
   for (const rawTags of sets) {

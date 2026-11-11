@@ -5,12 +5,15 @@
 // arriving close together) land in the same tick. BotState's `value` field
 // is a String, which can't be safely incremented this way.
 import mongoose from 'mongoose';
+
+// Type-only: models carry custom statics/methods and loosely-typed docs (migrated from JS).
+type AnyModel = mongoose.Model<any> & Record<string, any>;
 const CounterSchema = new mongoose.Schema({
   key: { type: String, required: true, unique: true },
   value: { type: Number, default: 0 },
 });
 
-const Counter = mongoose.model('Counter', CounterSchema);
+const Counter = mongoose.model('Counter', CounterSchema) as AnyModel;
 
 // Atomically returns the next integer in the named sequence, starting at 1
 // the first time a given key is used. Safe under concurrent callers —

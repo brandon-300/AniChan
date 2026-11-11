@@ -87,7 +87,7 @@ export function attachAnalyzeCommand(deps) {
     return cancelled;
   }
 
-  async function queueManualAnalysis({ mode, personaIds }) {
+  async function queueManualAnalysis({ mode, personaIds }: any) {
     const records = await loadSharedStickers({ force: true });
     const stickers = new Set();
     let tasks = 0;

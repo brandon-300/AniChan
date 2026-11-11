@@ -17,6 +17,9 @@
 // whole class of problem doesn't apply — no more "~"-encoding a WhatsApp
 // id just to use it as a Map key.
 import mongoose from 'mongoose';
+
+// Type-only: models carry custom statics/methods and loosely-typed docs (migrated from JS).
+type AnyModel = mongoose.Model<any> & Record<string, any>;
 const GroupActivitySchema = new mongoose.Schema({
   groupId: { type: String, required: true },
   userId: { type: String, required: true },
@@ -31,4 +34,4 @@ GroupActivitySchema.index({ groupId: 1, userId: 1 }, { unique: true });
 // within one group.
 GroupActivitySchema.index({ groupId: 1, count: -1 });
 
-export default mongoose.model('GroupActivity', GroupActivitySchema);
+export default mongoose.model('GroupActivity', GroupActivitySchema) as AnyModel;

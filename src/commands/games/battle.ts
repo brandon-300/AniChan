@@ -43,7 +43,7 @@ const DIFFICULTY_KEYS = ['easy', 'medium', 'hard'];
 // msg.reply() (a real quoted reply bubble under the triggering command),
 // not chat.sendMessage() — that was a bug found and fixed in all three of
 // those files after the fact, so this one is built with it from the start.
-async function sendBoard(msg, game, { turnSide = null, lastAction = null, caption }) {
+async function sendBoard(msg, game, { turnSide = null, lastAction = null, caption }: any) {
   try {
     const png = renderBoardImage({ p1Hp: game.p1.hp, p2Hp: game.p2.hp, turnSide, lastAction });
     const media = new MessageMedia('image/png', png.toString('base64'), 'battle-hud.png');

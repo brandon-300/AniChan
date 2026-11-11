@@ -4,6 +4,9 @@
 // twice across either .news or the daily auto-broadcast (both draw from the
 // same feed and both check this).
 import mongoose from 'mongoose';
+
+// Type-only: models carry custom statics/methods and loosely-typed docs (migrated from JS).
+type AnyModel = mongoose.Model<any> & Record<string, any>;
 const SentNewsSchema = new mongoose.Schema({
   chatId: { type: String, required: true },
   // The article's Google News link — stable and unique per article, so it
@@ -21,4 +24,4 @@ const SentNewsSchema = new mongoose.Schema({
 // One chat can't have the same article recorded twice
 SentNewsSchema.index({ chatId: 1, articleId: 1 }, { unique: true });
 
-export default mongoose.model('SentNews', SentNewsSchema);
+export default mongoose.model('SentNews', SentNewsSchema) as AnyModel;

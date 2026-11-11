@@ -5,6 +5,9 @@
 // at once, so the clock itself has to be shared rather than living on any
 // one Guild document.
 import mongoose from 'mongoose';
+
+// Type-only: models carry custom statics/methods and loosely-typed docs (migrated from JS).
+type AnyModel = mongoose.Model<any> & Record<string, any>;
 const SeasonSchema = new mongoose.Schema({
   seasonNumber: { type: Number, required: true, unique: true },
   startedAt: { type: Number, required: true },
@@ -30,4 +33,4 @@ const SeasonSchema = new mongoose.Schema({
   guildsResetComplete: { type: Boolean, default: false },
 });
 
-export default mongoose.model('Season', SeasonSchema);
+export default mongoose.model('Season', SeasonSchema) as AnyModel;

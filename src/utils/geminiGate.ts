@@ -40,14 +40,14 @@ function shouldBlockCommand(name) {
 }
 
 function makeBusyError() {
-  const err = new Error(GEMINI_BUSY_MESSAGE);
+  const err: any = new Error(GEMINI_BUSY_MESSAGE);
   err.code = 'GEMINI_BUSY';
   return err;
 }
 
 // Throws GEMINI_BUSY unless Gemini is free or the caller is the analysis queue
 // itself (bypass). Called at the top of every function in utils/gemini.js.
-function assertAvailable({ bypass = false } = {}) {
+function assertAvailable({ bypass = false }: any = {}) {
   if (!bypass && isReserved()) throw makeBusyError();
 }
 

@@ -86,7 +86,7 @@ function registerHandler(type, handler) {
 // the same regardless of Mongoose's implicit-update-operator handling.
 // Always re-arms the timer afterward in case this new task is now the
 // soonest pending one.
-async function scheduleTask({ type, key, runAt, payload = {} }) {
+async function scheduleTask({ type, key, runAt, payload = {} }: any) {
   logger.write('INFO', 'scheduler.task.schedule.requested', { type, key, runAt, payload });
   if (!type || !key || !runAt) {
     throw new Error('scheduler.scheduleTask requires type, key, and runAt');
@@ -116,7 +116,7 @@ async function scheduleTask({ type, key, runAt, payload = {} }) {
 // of resuming it. This only creates + arms a new task the first time a
 // given key is ever seen — an existing key (pending, running, or even
 // failed) is left completely untouched.
-async function scheduleIfMissing({ type, key, runAt, payload = {} }) {
+async function scheduleIfMissing({ type, key, runAt, payload = {} }: any) {
   logger.write('INFO', 'scheduler.task.schedule_if_missing.requested', { type, key, runAt, payload });
   if (!type || !key || !runAt) {
     throw new Error('scheduler.scheduleIfMissing requires type, key, and runAt');

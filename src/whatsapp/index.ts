@@ -16,6 +16,26 @@ import groups from './groups.js';
  * Main entry point for all WhatsApp operations
  */
 class WhatsAppAdapter {
+  declare sendQuickMenu: any;
+  declare on: any;
+  declare info: any;
+  declare markBackgroundInitialized: any;
+  declare socket: any;
+  declare auth: any;
+  declare messages: any;
+  declare media: any;
+  declare identity: any;
+  declare groups: any;
+  declare bindServices: any;
+  declare emit: any;
+  declare getSocket: any;
+  declare getWid: any;
+  declare getUser: any;
+  declare connect: any;
+  declare disconnect: any;
+  declare isConnected: any;
+  declare isAuthenticated: any;
+
   constructor() {
     this.socket = socketManager;
     this.auth = authManager;

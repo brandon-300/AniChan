@@ -40,7 +40,7 @@ async function claimMessage(messageId) {
   try {
     const attempt = (async () => {
       ensureIndexes(); // not awaited: the unique _id is what makes claiming safe, the TTL index is only housekeeping
-      await HandledMessage.collection.insertOne({ _id: id, engine: BOT_ENGINE, at: new Date() });
+      await HandledMessage.collection.insertOne({ _id: id, engine: BOT_ENGINE, at: new Date() } as any);
       return true;
     })();
     // A late answer is ignored; the timer must not keep the process alive.

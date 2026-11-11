@@ -99,7 +99,7 @@ function pickTopN(posts, seriesHint, excludePostId, limit) {
 // grinding through hundreds of cards that will all fail identically —
 // same reasoning utils/danbooru.js's own header comment gives for letting
 // a 429 propagate uncaught.
-async function searchCandidateImages(name, series, { limit = 8, excludePostId = null } = {}) {
+async function searchCandidateImages(name, series, { limit = 8, excludePostId = null }: any = {}) {
   try {
     let tagCandidates = await findCharacterTagCandidates(name);
     if (!tagCandidates.length) {
@@ -139,7 +139,7 @@ async function searchCandidateImages(name, series, { limit = 8, excludePostId = 
     return single ? [toCandidateShape(single, single.tagUsed || name, single.source)] : [];
   } catch (err) {
     if (err.status === 429) {
-      const wrapped = new Error(`A booru site rate-limited this run: ${err.message}`);
+      const wrapped: any = new Error(`A booru site rate-limited this run: ${err.message}`);
       wrapped.code = 'BOORU_RATE_LIMIT';
       throw wrapped;
     }

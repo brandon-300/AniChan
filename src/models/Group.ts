@@ -1,5 +1,8 @@
 
 import mongoose from 'mongoose';
+
+// Type-only: models carry custom statics/methods and loosely-typed docs (migrated from JS).
+type AnyModel = mongoose.Model<any> & Record<string, any>;
 const GroupSchema = new mongoose.Schema({
   id: { type: String, required: true, unique: true },
   antilink: { type: Boolean, default: false },
@@ -32,4 +35,4 @@ const GroupSchema = new mongoose.Schema({
   rules: { type: String, default: null }, // null = not set yet, per .rules/.setrules
 });
 
-export default mongoose.model('Group', GroupSchema);
+export default mongoose.model('Group', GroupSchema) as AnyModel;

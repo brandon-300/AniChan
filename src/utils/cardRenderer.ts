@@ -207,7 +207,7 @@ function buildPalette(h, s, l) {
     : hslToHex(h, clamp(nS - 18, 0, 95), clamp(nL + 32, 10, 96));
 
   const bannerRgb = hslToRgb(h, nS, nL);
-  const textOnBanner = relativeLuminance(bannerRgb) > 0.5 ? '#171717' : '#ffffff';
+  const textOnBanner = relativeLuminance(bannerRgb as any) > 0.5 ? '#171717' : '#ffffff';
 
   return { primary, dark, light, glow, textOnBanner };
 }
@@ -265,7 +265,7 @@ function octagonClipPath(w, h, c) {
 // ever touches this template — rule 21. imageDataUri is base64 (its
 // alphabet can never contain a quote or angle bracket), so it's safe to
 // drop directly into an attribute/url() with no escaping needed.
-function buildCardHtml({ name, series, tier, description, botName, imageDataUri, colors }) {
+function buildCardHtml({ name, series, tier, description, botName, imageDataUri, colors }: any) {
   const safeName = escapeHtml(name || 'Unknown');
   const safeSeries = escapeHtml(series || 'Unknown');
   const safeBotName = escapeHtml(botName || 'Bot');
@@ -497,7 +497,7 @@ async function extractAccentHsl(page) {
     }
 
     try {
-      const img = document.getElementById('src');
+      const img: any = document.getElementById('src');
       if (!img || !img.naturalWidth) return { h: null, method: 'no-image' };
 
       // Primary: the top ~5-42% of the image — typical hair-region band for
@@ -534,7 +534,7 @@ async function fetchImageAsDataUri(url) {
   for (let attempt = 1; attempt <= 2; attempt++) {
     try {
       const res = await axios.get(url, { responseType: 'arraybuffer', timeout: IMAGE_FETCH_TIMEOUT_MS });
-      const contentType = (res.headers['content-type'] || '').split(';')[0].trim();
+      const contentType = ((res.headers['content-type'] as any) || '').split(';')[0].trim();
       const mime = contentType.startsWith('image/') ? contentType : 'image/jpeg';
       return `data:${mime};base64,${Buffer.from(res.data).toString('base64')}`;
     } catch (err) {

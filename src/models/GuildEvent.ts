@@ -14,6 +14,9 @@
 // forgotten) purely so .guild info can mention a recent event for a few
 // days afterward.
 import mongoose from 'mongoose';
+
+// Type-only: models carry custom statics/methods and loosely-typed docs (migrated from JS).
+type AnyModel = mongoose.Model<any> & Record<string, any>;
 const GuildEventSchema = new mongoose.Schema({
   message: { type: String, required: true },
   coinsPerGuild: { type: Number, required: true },
@@ -22,4 +25,4 @@ const GuildEventSchema = new mongoose.Schema({
   triggeredAt: { type: Number, default: () => Date.now() },
 });
 
-export default mongoose.model('GuildEvent', GuildEventSchema);
+export default mongoose.model('GuildEvent', GuildEventSchema) as AnyModel;

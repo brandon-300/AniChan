@@ -277,7 +277,7 @@ const EMPTY_PENDING = { questionMessageId: '', question: '' };
 
 // ─── what the model is asked ─────────────────────────────────────────────────
 
-function buildDecisionPrompt({ answers, questionsAsked, questionNumber, retryInstruction = '', history = [], facts = [], ruledOut = [], untouched = [], seriesAsked = 0 }) {
+function buildDecisionPrompt({ answers, questionsAsked, questionNumber, retryInstruction = '', history = [], facts = [], ruledOut = [], untouched = [], seriesAsked = 0 }: any) {
   const answerLines = answers.length
     ? answers.map((entry, index) => `${index + 1}. ${entry.question} -> ${answerMeaning(entry.answer)}`).join('\n')
     : '(No answers yet. Choose a strong opening question.)';
@@ -421,7 +421,7 @@ function decisionSnapshot(session, decision) {
 
 // ─── messages (same wording as Miyabi) ───────────────────────────────────────
 
-function buildQuestionMessage(questionNumber, question, { started = false, restored = false } = {}) {
+function buildQuestionMessage(questionNumber, question, { started = false, restored = false }: any = {}) {
   const heading = started ? '🎩 *Akinator started!*\n\n' : '';
   const recovery = restored ? '(Resending your current question.)\n\n' : '';
   return `${heading}${recovery}Q${questionNumber}: ${question}\n\nReply to this message with: ${ANSWER_LABELS}`;
@@ -430,7 +430,7 @@ function buildQuestionMessage(questionNumber, question, { started = false, resto
 // Sends the current question as a reply to `replyTo` (the command, or the player's
 // last answer) and remembers the id of the sent message: that id is what the
 // player's next answer has to quote.
-async function sendCurrentQuestion(client, session, options = {}) {
+async function sendCurrentQuestion(client, session, options: any = {}) {
   const { replyTo = null, ...textOptions } = options;
   const text = buildQuestionMessage(session.questionNumber, session.currentQuestion, textOptions);
   const sent = replyTo ? await replyTo.reply(text) : await client.sendMessage(session.chatId, text);
@@ -514,7 +514,7 @@ async function completeSession(session, reason) {
 
 // ─── Gemini calls ────────────────────────────────────────────────────────────
 
-async function getDecision(answers, questionsAsked, questionNumber, retryInstruction = '', state = {}) {
+async function getDecision(answers, questionsAsked, questionNumber, retryInstruction = '', state: any = {}) {
   const prompt = buildDecisionPrompt({ answers, questionsAsked, questionNumber, retryInstruction, history: state.history || [], facts: state.facts || [], ruledOut: state.ruledOut || [], untouched: state.untouched || [], seriesAsked: state.seriesAsked || 0 });
   const raw = await gemini.generateStructured({
     model: config.AKINATOR_GEMINI_MODEL,
@@ -527,7 +527,7 @@ async function getDecision(answers, questionsAsked, questionNumber, retryInstruc
   return validateDecision(raw, answers.length);
 }
 
-async function getFallbackQuestion(answers, questionsAsked, questionNumber, avoid = [], state = {}) {
+async function getFallbackQuestion(answers, questionsAsked, questionNumber, avoid = [], state: any = {}) {
   const prompt = [
     'The prior Akinator decision did not provide an acceptable new question.',
     `Generate exactly one short, answerable yes/no question. The game has ${questionNumber} questions so far, with a hard maximum of ${config.AKINATOR_MAX_QUESTIONS}.`,
@@ -839,7 +839,7 @@ async function handleIncomingAnswer(client, msg) {
     // sent). When the bot is sure but the character cannot be matched in any database, the
     // first misses ask another question; after AKINATOR_UNVERIFIED_GUESS_AFTER misses it
     // names the character without a picture instead of asking forever.
-    const finishWithGuess = async (current, { force = false } = {}) => {
+    const finishWithGuess = async (current, { force = false }: any = {}) => {
       const reasons = force ? [] : explainGuessGate(current, session.questionNumber, answers, config, decisionSnapshot(session, current));
       // The player said it is NOT from that series (or another series was confirmed): whatever the
       // model's confidence, announcing a character from it would contradict the player.

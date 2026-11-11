@@ -17,7 +17,7 @@ import identity from './identity.js';
 
 const DEFAULT_DOWNLOAD_TIMEOUT_MS = 30_000;
 const DEFAULT_MAX_MEDIA_BYTES = 40 * 1024 * 1024;
-const mediaLogger = pino({ level: 'silent' });
+const mediaLogger = (pino as any)({ level: 'silent' });
 
 const EXTENSION_MIME_TYPES = {
   '.jpg': 'image/jpeg',
@@ -57,8 +57,8 @@ function getMediaSource(content) {
   return null;
 }
 
-function forwardingOptions(options = {}) {
-  const result = {};
+function forwardingOptions(options: any = {}) {
+  const result: any = {};
   if (options.quoted) result.quoted = options.quoted;
   if (options.linkPreview !== undefined) result.linkPreview = options.linkPreview;
   if (options.messageId) result.messageId = options.messageId;
@@ -70,6 +70,11 @@ function forwardingOptions(options = {}) {
  * Provides whatsapp-web.js-style media object for backward compatibility
  */
 export class MessageMedia {
+  declare data: any;
+  declare mimetype: any;
+  declare filename: any;
+  declare filesize: any;
+
   constructor(mimetype, data, filename = 'file') {
     this.mimetype = cleanMimeType(mimetype) || 'application/octet-stream';
     this.data = Buffer.isBuffer(data) || data instanceof Uint8Array
@@ -79,7 +84,7 @@ export class MessageMedia {
     this.filesize = Buffer.byteLength(this.data, 'base64');
   }
 
-  static async fromUrl(url, options = {}) {
+  static async fromUrl(url, options: any = {}) {
     if (!url) throw new TypeError('A media URL is required.');
     const timeout = Number.isFinite(options.timeout) ? options.timeout : DEFAULT_DOWNLOAD_TIMEOUT_MS;
     const maxContentLength = Number.isFinite(options.maxContentLength)
@@ -188,7 +193,7 @@ function detectMediaType(message) {
  * Convert MessageMedia to Baileys payload
  * Handles sticker metadata (pack name, author) properly
  */
-export function toBaileysMediaPayload(content, options = {}) {
+export function toBaileysMediaPayload(content, options: any = {}) {
   const source = getMediaSource(content);
   if (!source) return null;
 
@@ -200,7 +205,7 @@ export function toBaileysMediaPayload(content, options = {}) {
   const caption = options.caption ?? content.caption;
   const mentions = identity.toMentionJids(options.mentions || content.mentions);
   
-  const common = {};
+  const common: any = {};
   if (caption) common.caption = String(caption);
   if (Array.isArray(mentions) && mentions.length) common.mentions = mentions;
 
@@ -279,6 +284,9 @@ export async function downloadBaileysMedia(sock, message) {
  * Central service for all media operations
  */
 class WhatsAppMediaService {
+  declare sock: any;
+  declare onSent: any;
+
   constructor() {
     this.sock = null;
     this.onSent = null;
@@ -317,7 +325,7 @@ class WhatsAppMediaService {
     return this.sendMessage(jid, media, options);
   }
 
-  async sendAudio(jid, audio, options = {}) {
+  async sendAudio(jid, audio, options: any = {}) {
     const media = await this.resolveMedia(audio, options, options.mimetype || 'audio/mpeg');
     // Explicitly mark as non-voice note unless specified
     if (!options.ptt && !options.isVoiceNote && !options.sendAudioAsVoice) {
@@ -333,7 +341,7 @@ class WhatsAppMediaService {
     return messages.default.sendSticker(jid, sticker, options);
   }
 
-  async sendDocument(jid, document, options = {}) {
+  async sendDocument(jid, document, options: any = {}) {
     const media = await this.resolveMedia(document, options, options.mimetype || 'application/octet-stream');
     return this.sendMessage(jid, media, options);
   }

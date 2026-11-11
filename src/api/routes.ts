@@ -120,7 +120,7 @@ router.get('/cards', async (req: Request<Record<string, string>, unknown, unknow
     const sort = req.query.sort === 'name' ? { name: 1 } : { value: -1, name: 1 };
     const { limit, page, skip } = paginate(req.query, 20);
     const [rows, total] = await Promise.all([
-      CardCatalogue.find(filter).sort(sort).skip(skip).limit(limit).lean(),
+      CardCatalogue.find(filter).sort(sort as any).skip(skip).limit(limit).lean(),
       CardCatalogue.countDocuments(filter),
     ]);
     res.json(paginated(total, page, limit, rows.map(publicCard)));
@@ -149,7 +149,7 @@ router.get('/guilds', async (req: Request<Record<string, string>, unknown, unkno
         : { level: -1, xp: -1 };
     const { limit, page, skip } = paginate(req.query, 20);
     const [rows, total] = await Promise.all([
-      Guild.find().sort(sort).skip(skip).limit(limit).lean(),
+      Guild.find().sort(sort as any).skip(skip).limit(limit).lean(),
       Guild.countDocuments(),
     ]);
     res.json(paginated(total, page, limit, rows.map(publicGuild)));

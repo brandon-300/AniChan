@@ -137,7 +137,7 @@ function describeGameOver(chess, whiteName, blackName) {
 // Brandon, same as Tic Tac Toe, Chess keeps its PNG board image.
 // Everything else (lobby, join, startbot, the real turn timer) matches
 // Connect 4 and Tic Tac Toe exactly.
-async function sendBoard(msg, chess, { lastMove, caption, mentions } = {}) {
+async function sendBoard(msg, chess, { lastMove, caption, mentions }: any = {}) {
   const opts = mentions ? { caption, mentions } : { caption };
   try {
     const perspective = chess.turn();
@@ -155,7 +155,7 @@ async function sendBoard(msg, chess, { lastMove, caption, mentions } = {}) {
 // whichever of two people's .chess join filled the lobby; a skip isn't
 // triggered by any message at all) — a plain chat message, same reasoning
 // as connect4.js's/tictactoe.js's announceBoard.
-async function announceBoard(chat, chess, { lastMove, caption, mentions } = {}) {
+async function announceBoard(chat, chess, { lastMove, caption, mentions }: any = {}) {
   const opts = mentions ? { caption, mentions } : { caption };
   try {
     const perspective = chess.turn();

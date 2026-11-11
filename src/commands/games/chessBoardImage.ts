@@ -206,7 +206,7 @@ const IMG_SIZE = BOARD_PX + MARGIN * 2;
  * @param {{from: string, to: string}|null} [opts.lastMove=null] - Squares to highlight.
  * @returns {Buffer} PNG file buffer
  */
-function renderBoardImage(chess, opts = {}) {
+function renderBoardImage(chess, opts: any = {}) {
   const perspective = opts.perspective === 'b' ? 'b' : 'w';
   const lastMove = opts.lastMove || null;
   const board = chess.board(); // [0]=rank8..[7]=rank1, each row a1..h8 order per rank

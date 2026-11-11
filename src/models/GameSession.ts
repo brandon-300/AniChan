@@ -20,6 +20,9 @@
 // change to a real per-session id at that point; the document shape
 // itself doesn't need to be redesigned from scratch.
 import mongoose from 'mongoose';
+
+// Type-only: models carry custom statics/methods and loosely-typed docs (migrated from JS).
+type AnyModel = mongoose.Model<any> & Record<string, any>;
 const GameSessionSchema = new mongoose.Schema({
   chatId: { type: String, required: true, unique: true },
   type: { type: String, required: true }, // 'ttt' today; 'c4' | 'chess' | 'battle' | 'quiz' as each migrates
@@ -27,4 +30,4 @@ const GameSessionSchema = new mongoose.Schema({
   state: { type: mongoose.Schema.Types.Mixed, default: {} },
 }, { timestamps: true });
 
-export default mongoose.model('GameSession', GameSessionSchema);
+export default mongoose.model('GameSession', GameSessionSchema) as AnyModel;

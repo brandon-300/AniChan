@@ -665,7 +665,7 @@ async lottery(client, msg, args) {
     // written — that still only happens in the age>=MIN_REGISTRATION_AGE
     // branch further down, so an already-registered person's valid,
     // existing DOB is never overwritten by a rejected under-18 attempt.
-    const existingUser = await User.findOne({ id: userId }, 'registration').lean();
+    const existingUser: any = await User.findOne({ id: userId }, 'registration').lean();
     const alreadyActive = existingUser?.registration?.status === 'active';
 
     if (age < MIN_REGISTRATION_AGE) {

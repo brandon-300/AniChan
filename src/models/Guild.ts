@@ -9,6 +9,9 @@
 
 import User from './User.js';
 import mongoose from 'mongoose';
+
+// Type-only: models carry custom statics/methods and loosely-typed docs (migrated from JS).
+type AnyModel = mongoose.Model<any> & Record<string, any>;
 import { getNextSequence } from './Counter.js';
 import { withGuildLock } from '../utils/guildLock.js';
 import { xpNeededForLevel, encodeIdKey } from '../utils/helpers.js';
@@ -398,7 +401,7 @@ function getRewardMultiplier(guild) {
 // ever changed some other way (a future "buy more slots" feature, say)
 // still gets its level bonus on top of THAT number, not a hardcoded reset
 // back to 25.
-GuildSchema.statics.effectiveMaxMembers = function (guild) {
+(GuildSchema.statics as any).effectiveMaxMembers = function (guild) {
   return guild.maxMembers + Math.floor(guild.level / 5) * 5 + (guild.upgrades?.hall || 0) * 5;
 };
 
@@ -625,7 +628,7 @@ GuildSchema.post('find', function (docs) {
 // field has no other source today, so awarding it here (the one place
 // that already knows "this member's action just counted toward the
 // guild's focus") doesn't risk double-counting.
-GuildSchema.statics.applyQuestProgress = function (guild, userId, questType, amount) {
+(GuildSchema.statics as any).applyQuestProgress = function (guild, userId, questType, amount) {
   if (!guild || !userId || !amount || amount <= 0) return null;
 
   const questMatches = guild.activeQuest.questType === questType;
@@ -642,7 +645,7 @@ GuildSchema.statics.applyQuestProgress = function (guild, userId, questType, amo
     updateMemberStreak(member);
   }
 
-  const result = { questCompleted: false, missionCompleted: false, questType };
+  const result: any = { questCompleted: false, missionCompleted: false, questType };
 
   if (questMatches) {
     const key = encodeIdKey(userId);
@@ -692,7 +695,7 @@ GuildSchema.statics.applyQuestProgress = function (guild, userId, questType, amo
 // finishing a game) that triggered it. Returns null if the user isn't in a
 // guild, or on any failure; otherwise the same result shape as
 // applyQuestProgress, plus guildName/guildEmblem for display.
-GuildSchema.statics.addQuestProgress = async function (userId, questType, amount) {
+(GuildSchema.statics as any).addQuestProgress = async function (this: any, userId, questType, amount) {
   try {
     if (!userId || !amount || amount <= 0) return null;
     const user = await User.findOne({ id: userId });
@@ -726,20 +729,20 @@ GuildSchema.statics.addQuestProgress = async function (userId, questType, amount
   }
 };
 
-GuildSchema.statics.ROLES = ROLES;
-GuildSchema.statics.ROLE_RANK = ROLE_RANK;
-GuildSchema.statics.QUEST_DEFS = QUEST_DEFS;
-GuildSchema.statics.MIN_QUEST_DURATION_MS = MIN_QUEST_DURATION_MS;
-GuildSchema.statics.MISSION_DEFS = MISSION_DEFS;
-GuildSchema.statics.MIN_MISSION_DURATION_MS = MIN_MISSION_DURATION_MS;
-GuildSchema.statics.levelRewardMultiplier = levelRewardMultiplier;
-GuildSchema.statics.getRewardMultiplier = getRewardMultiplier;
-GuildSchema.statics.UPGRADE_MAX_LEVEL = UPGRADE_MAX_LEVEL;
-GuildSchema.statics.UPGRADE_NAMES = UPGRADE_NAMES;
-GuildSchema.statics.getUpgradeCost = getUpgradeCost;
-GuildSchema.statics.SHOP_BANNERS = SHOP_BANNERS;
-GuildSchema.statics.awardReputation = awardReputation;
-GuildSchema.statics.logActivity = logActivity;
+(GuildSchema.statics as any).ROLES = ROLES;
+(GuildSchema.statics as any).ROLE_RANK = ROLE_RANK;
+(GuildSchema.statics as any).QUEST_DEFS = QUEST_DEFS;
+(GuildSchema.statics as any).MIN_QUEST_DURATION_MS = MIN_QUEST_DURATION_MS;
+(GuildSchema.statics as any).MISSION_DEFS = MISSION_DEFS;
+(GuildSchema.statics as any).MIN_MISSION_DURATION_MS = MIN_MISSION_DURATION_MS;
+(GuildSchema.statics as any).levelRewardMultiplier = levelRewardMultiplier;
+(GuildSchema.statics as any).getRewardMultiplier = getRewardMultiplier;
+(GuildSchema.statics as any).UPGRADE_MAX_LEVEL = UPGRADE_MAX_LEVEL;
+(GuildSchema.statics as any).UPGRADE_NAMES = UPGRADE_NAMES;
+(GuildSchema.statics as any).getUpgradeCost = getUpgradeCost;
+(GuildSchema.statics as any).SHOP_BANNERS = SHOP_BANNERS;
+(GuildSchema.statics as any).awardReputation = awardReputation;
+(GuildSchema.statics as any).logActivity = logActivity;
 
 // ─── Explicit guild-state maintenance (replaces the old auto-save read
 // hooks — see the findOne/find hooks earlier in this file) ──────────────
@@ -759,7 +762,7 @@ GuildSchema.statics.logActivity = logActivity;
 // alternative for this ("Or use a scheduler for daily/periodic guild-state
 // maintenance") landed almost for free since that function already loops
 // every guild once a day.
-GuildSchema.statics.ensureGuildState = async function (guild) {
+(GuildSchema.statics as any).ensureGuildState = async function (guild) {
   if (!guild || typeof guild.save !== 'function') return guild;
   const needsInterestSave = applyDailyGuildInterest(guild);
   const needsQuestSave = ensureActiveQuest(guild);
@@ -770,4 +773,4 @@ GuildSchema.statics.ensureGuildState = async function (guild) {
   return guild;
 };
 
-export default mongoose.model('Guild', GuildSchema);
+export default mongoose.model('Guild', GuildSchema) as AnyModel;

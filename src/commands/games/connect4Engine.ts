@@ -179,7 +179,7 @@ function minimax(board, depth, alpha, beta, maximizing, me, opp, startTime, time
  *   first, same pattern as chessEngine.js's and tictactoeEngine.js's
  *   getBestMove).
  */
-function getBestMove(board, botPiece, humanPiece, { maxDepth = 4, timeLimitMs = 2000 } = {}) {
+function getBestMove(board, botPiece, humanPiece, { maxDepth = 4, timeLimitMs = 2000 }: any = {}) {
   const cols = validColumns(board);
   if (!cols.length) return null;
 

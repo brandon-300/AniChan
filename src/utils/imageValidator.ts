@@ -209,13 +209,13 @@ async function downloadImageBuffer(url) {
 
   let res;
   try {
-    res = await axios.get(url, axiosOpts(downloadHeadersFor(url)));
+    res = await axios.get(url, axiosOpts(downloadHeadersFor(url)) as any);
   } catch (err) {
     const status = err && err.response && err.response.status;
     if (status === 403 || status === 429) {
       // One polite retry with the fuller browser header set before giving
       // up on this candidate.
-      res = await axios.get(url, axiosOpts(retryHeadersFor(url)));
+      res = await axios.get(url, axiosOpts(retryHeadersFor(url)) as any);
     } else {
       throw err;
     }
@@ -223,7 +223,7 @@ async function downloadImageBuffer(url) {
 
   const buffer = Buffer.from(res.data);
   if (buffer.length > MAX_IMAGE_BYTES) {
-    const err = new Error(`Image is ${(buffer.length / 1024 / 1024).toFixed(1)}MB, over the ${MAX_IMAGE_BYTES / 1024 / 1024}MB cap`);
+    const err: any = new Error(`Image is ${(buffer.length / 1024 / 1024).toFixed(1)}MB, over the ${MAX_IMAGE_BYTES / 1024 / 1024}MB cap`);
     err.code = 'IMAGE_TOO_LARGE';
     throw err;
   }
@@ -322,7 +322,7 @@ function parseJsonObject(text) {
   return parsed;
 }
 
-async function visionCheckCandidate({ buffer, mimeType, name, series }) {
+async function visionCheckCandidate({ buffer, mimeType, name, series }: any) {
   try {
     const raw = await generateVision({
       prompt: VISION_PROMPT_TEMPLATE(name, series),
@@ -354,7 +354,7 @@ async function visionCheckCandidate({ buffer, mimeType, name, series }) {
 // STARTING-POINT WEIGHTS — same uncertainty flag as the domain lists above:
 // these numbers are a reasonable-looking first draft, not something that's
 // been tuned against real results. Adjust after watching a few dry runs.
-function scoreCandidate({ candidate, dims, domainTier, textMatch, vision, formatMismatch }) {
+function scoreCandidate({ candidate, dims, domainTier, textMatch, vision, formatMismatch }: any) {
   let score = 40;
   const reasons = [];
   let hardReject = false;

@@ -42,14 +42,14 @@ function redactUrl(value) {
   }
 }
 
-function safeValue(value, key = '', seen = new WeakSet()) {
+function safeValue(value: any, key = '', seen = new WeakSet()) {
   if (REDACT_KEY.test(key)) return '[REDACTED]';
   if (/url/i.test(key) && typeof value === 'string') return redactUrl(value);
   if (value instanceof Error) {
     return {
       name: value.name,
       message: truncate(value.message),
-      code: value.code,
+      code: (value as any).code,
       stack: truncate(value.stack || '', 4000),
     };
   }
@@ -68,7 +68,7 @@ function safeValue(value, key = '', seen = new WeakSet()) {
     return result;
   }
 
-  const result = {};
+  const result: any = {};
   for (const childKey of Object.keys(value).slice(0, MAX_OBJECT_KEYS)) {
     result[childKey] = safeValue(value[childKey], childKey, seen);
   }

@@ -5,6 +5,9 @@
 // months of activity (same "counters, not raw logs" idea as Group's
 // messageCount/activityLog).
 import mongoose from 'mongoose';
+
+// Type-only: models carry custom statics/methods and loosely-typed docs (migrated from JS).
+type AnyModel = mongoose.Model<any> & Record<string, any>;
 const CommandUsageSchema = new mongoose.Schema({
   // 'DM' for command usage outside of any group.
   groupId: { type: String, required: true, index: true },
@@ -22,4 +25,4 @@ const CommandUsageSchema = new mongoose.Schema({
 
 CommandUsageSchema.index({ groupId: 1, userId: 1, command: 1 }, { unique: true });
 
-export default mongoose.model('CommandUsage', CommandUsageSchema);
+export default mongoose.model('CommandUsage', CommandUsageSchema) as AnyModel;

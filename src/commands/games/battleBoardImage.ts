@@ -139,7 +139,7 @@ function drawPanel(pixels, y, hp, color, isTurn, delta) {
  *   is a heal (green), negative is damage taken (red).
  * @returns {Buffer} PNG file buffer
  */
-function renderBoardImage(state = {}) {
+function renderBoardImage(state: any = {}) {
   const { p1Hp = 100, p2Hp = 100, turnSide = null, lastAction = null } = state;
 
   const pixels = Buffer.alloc(IMG_W * IMG_H * 3);

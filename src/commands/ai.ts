@@ -162,7 +162,7 @@ function stripLegacyReactionBlock(text) {
   return String(text || '').replace(/\nInternal reaction control:\n[\s\S]*?(?=\nPrivate-DM menu action:\n|$)/, '\n');
 }
 
-function buildPersonaSystemPrompt(senderName, medium, allowBotActions = false, { catalogue = null, personaId = null } = {}) {
+function buildPersonaSystemPrompt(senderName, medium, allowBotActions = false, { catalogue = null, personaId = null }: any = {}) {
   // If personaId is provided, try to load that specific persona
   // Otherwise fall back to the globally configured active persona
   let persona;
@@ -178,7 +178,7 @@ function buildPersonaSystemPrompt(senderName, medium, allowBotActions = false, {
   }
   
   if (!persona) {
-    const err = new Error('The active AI persona could not be loaded. Check AI_PERSONA and its config/personas/<id> files.');
+    const err: any = new Error('The active AI persona could not be loaded. Check AI_PERSONA and its config/personas/<id> files.');
     err.code = 'AI_PERSONA_UNAVAILABLE';
     throw err;
   }
@@ -226,7 +226,7 @@ function parseEmojiToken(value) {
   return first;
 }
 
-function parseAiControls(rawOutput, { allowBotActions = false } = {}) {
+function parseAiControls(rawOutput, { allowBotActions = false }: any = {}) {
   let reaction = 'none';
   let responseMode = 'text';
   let action = null;
@@ -305,7 +305,7 @@ function historyAssistantText(controls, delivered) {
   return parts.join(' ').trim() || '[[no_reply]]';
 }
 
-async function deliverTextResponse(client, msg, rawOutput, allowBotActions = false, { stickerReply = false, catalogue = null, personaId = 'default' } = {}) {
+async function deliverTextResponse(client, msg, rawOutput, allowBotActions = false, { stickerReply = false, catalogue = null, personaId = 'default' }: any = {}) {
   const controls = parseAiControls(rawOutput, { allowBotActions });
   logger.write('INFO', 'ai.model.reply', {
     stickerReply,
@@ -401,8 +401,8 @@ const stripSpeechFormatting = speechText.toSpeechText;
 
 // Sends a reply and records the sent message so a later reaction to it can be
 // recognised as a reaction to something the AI said (utils/aiMessageLedger.js).
-async function replyTracked(msg, content, kind, personaId = 'default') {
-  const sent = await msg.reply(content);
+async function replyTracked(msg, content, kind, personaId = 'default', options?: any) {
+  const sent = await msg.reply(content, options);
   aiMessageLedger.remember(sent, kind, personaId);
   return sent;
 }
@@ -499,7 +499,7 @@ async function resolveMultimodalInput(msg, args) {
       : (typed || USER_STICKER_PROMPT);
     const quotedMessageId = quoted?.id?._serialized || quoted?.id?.id;
     if (botSentStickerReply && quotedMessageId) {
-      const sentContext = await aiStickers.getSentStickerContext(quotedMessageId);
+      const sentContext: any = await aiStickers.getSentStickerContext(quotedMessageId);
       if (sentContext) {
         prompt += `\n\nIMPORTANT IMAGE ORDER: Image 1 is the new sticker sent by the user. Image 2 is the sticker previously sent by you (the bot/persona ${sentContext.personaId}), not by the user. The user did NOT send Image 2. It was your reaction sticker with reaction label ${sentContext.reaction || 'unknown'}. Treat the user's current message as a response to the sticker you sent.`;
       } else {

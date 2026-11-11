@@ -30,7 +30,7 @@ function escapeHtml(str) {
  * @param {{ topText?: string, bottomText?: string }} captions
  * @returns {Promise<Buffer>} PNG buffer of the composed image, same aspect ratio as the source
  */
-async function renderMemeImage(client, imageBuffer, mimetype, captions = {}) {
+async function renderMemeImage(client, imageBuffer, mimetype, captions: any = {}) {
   const topText = (captions.topText || '').trim();
   const bottomText = (captions.bottomText || '').trim();
   if (!topText && !bottomText) {
@@ -51,7 +51,7 @@ async function renderMemeImage(client, imageBuffer, mimetype, captions = {}) {
       { waitUntil: 'load' }
     );
     const natural = await page.evaluate(() => {
-      const img = document.getElementById('src');
+      const img: any = document.getElementById('src');
       return { w: img.naturalWidth || 0, h: img.naturalHeight || 0 };
     });
 
@@ -167,7 +167,7 @@ const MIN_FRAME_DURATION_MS = 20; // guards against a missing/zero per-frame dur
  * @param {{ topText?: string, bottomText?: string }} captions
  * @returns {Promise<{ frames: Array<{dataUrl: string, durationMs: number}>, totalFrames: number, sampledFrames: number }>}
  */
-async function renderAnimatedMemeFrames(client, imageBuffer, mimetype, captions = {}) {
+async function renderAnimatedMemeFrames(client, imageBuffer, mimetype, captions: any = {}) {
   const topText = (captions.topText || '').trim();
   const bottomText = (captions.bottomText || '').trim();
   if (!topText && !bottomText) {

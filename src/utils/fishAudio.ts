@@ -98,7 +98,7 @@ function resolveVoiceId(voiceId, personaId = null) {
   const selected = voiceId || FISH_VOICE_ID;
   if (!selected) {
     const label = activePersona?.displayName || 'the active persona';
-    const err = new Error(`No Fish Audio voice is configured for ${label}. Set voice.referenceId in that persona's meta.json, or set FISH_VOICE_ID only as a process-wide emergency override.`);
+    const err: any = new Error(`No Fish Audio voice is configured for ${label}. Set voice.referenceId in that persona's meta.json, or set FISH_VOICE_ID only as a process-wide emergency override.`);
     err.code = 'NO_FISH_VOICE';
     throw err;
   }
@@ -107,7 +107,7 @@ function resolveVoiceId(voiceId, personaId = null) {
 
 function assertConfig() {
   if (!FISH_API_KEY) {
-    const err = new Error('FISH_API_KEY is not set in .env');
+    const err: any = new Error('FISH_API_KEY is not set in .env');
     err.code = 'NO_FISH_KEY';
     throw err;
   }
@@ -146,7 +146,7 @@ function getAnimeVoiceSettings(personaId) {
 
 // Builds the JSON body for POST /v1/tts. Pure function (no I/O) so the exact
 // request can be tested. `overrides` beat the persona, which beats config.
-function buildTtsPayload(text, referenceId, personaId = null, overrides = {}) {
+function buildTtsPayload(text, referenceId, personaId = null, overrides: any = {}) {
   const activePersona = personaId ? { id: personaId, voice: {} } : getActivePersonaSafe();
   
   // Get anime voice settings for this persona
@@ -180,11 +180,11 @@ function buildTtsPayload(text, referenceId, personaId = null, overrides = {}) {
     FISH_VOLUME_DB
   );
 
-  const prosody = { normalize_loudness: false };
+  const prosody: any = { normalize_loudness: false };
   if (speed !== undefined && speed !== 1) prosody.speed = speed;
   if (volume !== undefined && volume !== 0) prosody.volume = volume;
 
-  const body = {
+  const body: any = {
     text,
     reference_id: referenceId,
     format: 'mp3',
@@ -224,7 +224,7 @@ async function synthesizeSpeech(text, personaId = null, voiceId = null, override
 
     // Validate response
     if (!response.data || response.data.byteLength === 0) {
-      const err = new Error('Fish Audio returned empty audio data');
+      const err: any = new Error('Fish Audio returned empty audio data');
       err.code = 'EMPTY_AUDIO';
       throw err;
     }

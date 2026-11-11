@@ -132,7 +132,7 @@ function toSpeechText(input) {
   text = text.replace(/[()\[\]{}<>|\\^]/g, ' ');
 
   // Chat shorthand → spoken words.
-  for (const [pattern, replacement] of SPOKEN_FORMS) text = text.replace(pattern, replacement);
+  for (const [pattern, replacement] of SPOKEN_FORMS as any[]) text = text.replace(pattern, replacement);
 
   // Line breaks become sentence breaks so the voice phrases naturally.
   text = text

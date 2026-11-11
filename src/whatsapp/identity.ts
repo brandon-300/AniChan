@@ -54,6 +54,15 @@ function isGroupJid(jid) {
  * Manages identity resolution between LID and PN formats
  */
 class IdentityService {
+  declare sock: any;
+  declare ownerIds: any;
+  declare modIds: any;
+  declare contacts: any;
+  declare lidToPnMap: any;
+  declare pnToLidMap: any;
+  declare syncedFromBaileys: any;
+  declare unresolvedLidWarned: any;
+
   constructor() {
     this.sock = null;
     
@@ -126,72 +135,6 @@ class IdentityService {
     } catch (error) {
       // Silently fail - we'll rely on event-based updates
     }
-  }
-
-  /**
-   * Get PN from LID - checks Baileys store first, then cache
-   * @param {string} lidJid - LID
-   * @returns {string|null} PN JID or null
-   */
-  getPnFromLid(lidJid) {
-    if (!lidJid) return null;
-    const normalized = this.normalizeJid(lidJid);
-    
-    // First check our cache
-    if (this.lidToPnMap.has(normalized)) {
-      return this.lidToPnMap.get(normalized);
-    }
-    
-    // Then check Baileys signalRepository
-    const lidMapping = this.getBaileysLidMapping();
-    if (lidMapping) {
-      try {
-        // Baileys uses getPNForLID which may be async
-        // We'll try both sync and async patterns
-        const pnFromBaileys = lidMapping.getPNForLID?.(normalized);
-        if (pnFromBaileys) {
-          // Cache the result
-          this.addLidPnMapping(normalized, pnFromBaileys);
-          return pnFromBaileys;
-        }
-      } catch (error) {
-        // Fall through to cache-only
-      }
-    }
-    
-    return null;
-  }
-
-  /**
-   * Get LID from PN - checks Baileys store first, then cache
-   * @param {string} pnJid - Phone number JID
-   * @returns {string|null} LID or null
-   */
-  getLidFromPn(pnJid) {
-    if (!pnJid) return null;
-    const normalized = this.normalizeJid(pnJid);
-    
-    // First check our cache
-    if (this.pnToLidMap.has(normalized)) {
-      return this.pnToLidMap.get(normalized);
-    }
-    
-    // Then check Baileys signalRepository
-    const lidMapping = this.getBaileysLidMapping();
-    if (lidMapping) {
-      try {
-        const lidFromBaileys = lidMapping.getLIDForPN?.(normalized);
-        if (lidFromBaileys) {
-          // Cache the result
-          this.addLidPnMapping(lidFromBaileys, normalized);
-          return lidFromBaileys;
-        }
-      } catch (error) {
-        // Fall through to cache-only
-      }
-    }
-    
-    return null;
   }
 
   /**
@@ -332,7 +275,7 @@ class IdentityService {
     if (key.participant) candidates.add(key.participant);
     if (key.remoteJid && !key.remoteJid.endsWith('@g.us')) candidates.add(key.remoteJid);
     const content = baileysMsg.message || {};
-    for (const value of Object.values(content)) {
+    for (const value of Object.values(content) as any[]) {
       const ctx = value && typeof value === 'object' ? value.contextInfo : null;
       if (!ctx) continue;
       for (const jid of ctx.mentionedJid || []) candidates.add(jid);
@@ -687,13 +630,13 @@ class IdentityService {
     const normalized = this.normalizeJid(jid);
     const canonicalId = this.getCanonicalId(normalized);
     const phoneNumber = this.getPhoneNumber(normalized);
-    const isLid = isLid(normalized);
+    const lidFlag = isLid(normalized);
     
     return {
       jid: normalized,
       canonicalId,
       phoneNumber,
-      isLid,
+      isLid: lidFlag,
       displayName: this.getDisplayName(normalized),
     };
   }

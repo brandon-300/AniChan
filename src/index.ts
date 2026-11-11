@@ -689,7 +689,7 @@ async function initialize() {
               if (REGISTRATION_BYPASS_COMMANDS.has(command) && registrationCheck.senderId && !registrationCheck.wasActive) {
                 try {
                   const User = await import('./models/User.js');
-                  const freshUser = await User.default.findOne({ id: registrationCheck.senderId }, 'registration').lean();
+                  const freshUser: any = await User.default.findOne({ id: registrationCheck.senderId }, 'registration').lean();
                   if (freshUser?.registration?.status === 'active') {
                     await sendQuickMenu(baileysMsg);
                   }
@@ -800,7 +800,7 @@ async function initialize() {
       }
 
       if (_resumePendingMutes) {
-        runLoggedBackgroundTask('mute_restore', {}, () => _resumePendingMutes(client)).catch(err => logger.error('background.mute_restore.failed', err));
+        runLoggedBackgroundTask('mute_restore', {}, () => _resumePendingMutes()).catch(err => logger.error('background.mute_restore.failed', err));
       }
 
       if (_initAfk) {

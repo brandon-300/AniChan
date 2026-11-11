@@ -8,13 +8,18 @@ import identity from './identity.js';
 import pino from 'pino';
 import { WHATSAPP_LOG_LEVEL } from '../utils/config.js';
 
-const logger = pino({ level: WHATSAPP_LOG_LEVEL });
+const logger = (pino as any)({ level: WHATSAPP_LOG_LEVEL });
 
 /**
  * Groups Service
  * Manages group metadata and participant caching
  */
 class GroupsService {
+  declare sock: any;
+  declare groupCache: any;
+  declare cacheTTL: any;
+  declare cacheCleanupInterval: any;
+
   constructor() {
     this.sock = null;
     this.groupCache = new Map();

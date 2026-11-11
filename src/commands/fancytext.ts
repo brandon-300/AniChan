@@ -40,7 +40,7 @@ const DEMO_TEXT = 'Hello';
 // Alphanumeric Symbols block that gave every OTHER letter its main-block
 // slot) — `legacy` below is exactly those exceptions, keyed by the
 // original plain-ASCII letter.
-function mathBlockStyle({ upper, lower, digit, legacy }) {
+function mathBlockStyle({ upper, lower, digit, legacy }: any) {
   return (text) => [...text].map(ch => {
     if (legacy && legacy[ch] !== undefined) return String.fromCodePoint(legacy[ch]);
     const code = ch.codePointAt(0);

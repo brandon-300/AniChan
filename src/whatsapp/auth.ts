@@ -8,6 +8,10 @@ const __dirname = path.dirname(__filename);
 export const AUTH_DIR = path.resolve(__dirname, '../../auth_info_baileys');
 
 class AuthManager {
+  declare state: any;
+  declare saveCredsFn: any;
+  declare initialized: any;
+
   constructor() {
     this.state = null;
     this.saveCredsFn = null;

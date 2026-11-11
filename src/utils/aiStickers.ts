@@ -88,7 +88,7 @@ function analysisReservesGemini() {
 geminiGate.setReservationProvider(analysisReservesGemini);
 
 function makeError(message, code) {
-  const err = new Error(message);
+  const err: any = new Error(message);
   if (code) err.code = code;
   return err;
 }
@@ -111,7 +111,7 @@ async function ensureDatabaseReady() {
   if (modelInitPromise) await modelInitPromise;
 }
 
-async function executeQuery(query, { lean = true } = {}) {
+async function executeQuery(query, { lean = true }: any = {}) {
   let current = query;
   if (lean && current && typeof current.lean === 'function') current = current.lean();
   if (current && typeof current.exec === 'function') return current.exec();
@@ -238,7 +238,7 @@ function setCachedSticker(_sourcePersonaId, doc) {
   personaIndexes.set(SHARED_LIBRARY_KEY, current);
 }
 
-async function loadSharedStickers({ force = false } = {}) {
+async function loadSharedStickers({ force = false }: any = {}) {
   if (!force && personaIndexes.has(SHARED_LIBRARY_KEY)) return personaIndexes.get(SHARED_LIBRARY_KEY);
   if (indexLoaders.has(SHARED_LIBRARY_KEY)) return indexLoaders.get(SHARED_LIBRARY_KEY);
 
@@ -775,7 +775,7 @@ async function initialize() {
 }
 
 // ─── Manual analysis (owner only, via .stickeranalyze) ──────────────────────
-async function queueManualAnalysis({ mode, personaIds }) {
+async function queueManualAnalysis({ mode, personaIds }: any) {
   const records = await loadSharedStickers();
   const stickers = new Set();
   let tasks = 0;
@@ -1081,7 +1081,7 @@ async function persistStickerRecord(sourcePersona, hash, bytes) {
     return { record: normalized, duplicate: true, shouldAnalyze: false, analysisPersonaIds: [] };
   }
 
-  const uploaded = await cloudinaryStorage.uploadBufferToCloud(bytes, {
+  const uploaded: any = await cloudinaryStorage.uploadBufferToCloud(bytes, {
     folder: 'ai-stickers/shared',
     publicId: hash,
     resourceType: 'image',
@@ -1432,7 +1432,7 @@ function shuffled(list) {
 
 // Returns { items, text, eligible, offered, animeCount, excluded, reason }.
 // items[n] = { id, hash, entry, analysis, label }; `text` is the prompt block.
-async function buildStickerCatalogue(chatId, persona = null, { max = AI_STICKER_CATALOGUE_MAX } = {}) {
+async function buildStickerCatalogue(chatId, persona = null, { max = AI_STICKER_CATALOGUE_MAX }: any = {}) {
   const base = { items: [], text: '', eligible: 0, offered: 0, animeCount: 0, excluded: {}, reason: null };
   const chatKey = String(chatId || 'unknown-chat');
   if (!AI_STICKERS_ENABLED) {
@@ -1525,7 +1525,7 @@ async function buildStickerCatalogue(chatId, persona = null, { max = AI_STICKER_
 
 // Sends catalogue sticker `stickerId`. Never throws; the result says what
 // happened so the caller can log it and decide on a fallback.
-async function sendCatalogueSticker(client, msg, catalogue, stickerId, { persona = null } = {}) {
+async function sendCatalogueSticker(client, msg, catalogue, stickerId, { persona = null }: any = {}) {
   const id = Number(stickerId);
   const item = (catalogue?.items || []).find(candidate => candidate.id === id);
   if (!item) {
@@ -1555,7 +1555,7 @@ async function sendCatalogueSticker(client, msg, catalogue, stickerId, { persona
   }
 }
 
-function _setAdaptersForTests({ Model, storage, mongoConnected } = {}) {
+function _setAdaptersForTests({ Model, storage, mongoConnected }: any = {}) {
   stickerModel = Model || AiSticker;
   cloudinaryStorage = storage || cloudinary;
   mongoIsReady = mongoConnected || (() => mongoose.connection.readyState === 1);

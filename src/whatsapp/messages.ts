@@ -15,7 +15,7 @@ import { getActivePersonaSafe, loadPersona } from '../utils/persona.js';
 import { Sticker, StickerTypes } from 'wa-sticker-formatter';
 import { embedStickerExif } from './stickerMeta.js';
 
-const logger = pino({ level: WHATSAPP_LOG_LEVEL });
+const logger = (pino as any)({ level: WHATSAPP_LOG_LEVEL });
 
 /**
  * Extract message key from various message formats
@@ -69,7 +69,7 @@ function messageKey(message) {
  * Get guaranteed sticker metadata
  * Ensures packName = BOT_NAME and author = active persona
  */
-function getStickerMetadata(options = {}) {
+function getStickerMetadata(options: any = {}) {
   // Prefer an explicitly selected persona (per-chat) over the global default.
   let persona = options.persona || null;
   if (!persona && options.personaId) {
@@ -108,10 +108,10 @@ async function embedStickerMetadata(stickerBuffer, packName, author, categories 
       pack: packName,
       author: author,
       type: StickerTypes.FULL,
-      categories: categories,
+      categories: categories as any,
       packName: packName,
       authorName: author,
-    });
+    } as any);
     
     // Get the buffer with embedded metadata
     const bufferWithMetadata = await sticker.toBuffer();
@@ -148,8 +148,8 @@ async function finalizeStickerPayload(payload) {
  * Handles MessageMedia, strings, and objects
  * Guarantees sticker metadata for sticker content
  */
-function payloadFor(content, options = {}) {
-  const mediaPayload = toBaileysMediaPayload(content, options);
+function payloadFor(content, options: any = {}) {
+  const mediaPayload: any = toBaileysMediaPayload(content, options);
   if (mediaPayload) {
     // Ensure sticker metadata is set
     if (mediaPayload.sticker && !mediaPayload.packname) {
@@ -165,7 +165,7 @@ function payloadFor(content, options = {}) {
   }
   
   if (typeof content === 'string') {
-    const text = { text: content };
+    const text: any = { text: content };
     const textMentions = identity.toMentionJids(options.mentions);
     if (textMentions.length) text.mentions = textMentions;
     return text;
@@ -198,8 +198,8 @@ function payloadFor(content, options = {}) {
  * Build send options for Baileys
  * Handles quoting, link preview, and other options
  */
-function sendOptions(options = {}, quotedMessage = null) {
-  const output = {};
+function sendOptions(options: any = {}, quotedMessage = null) {
+  const output: any = {};
   
   // Handle quoted message
   const quoted = options.quoted || quotedMessage?._baileys || quotedMessage?.key || null;
@@ -225,6 +225,9 @@ function sendOptions(options = {}, quotedMessage = null) {
  * THIS IS THE AUTHORITATIVE TRANSPORT PATH
  */
 class MessagesService {
+  declare sock: any;
+  declare sentMessageRegistry: any;
+
   constructor() {
     this.sock = null;
     this.sentMessageRegistry = new Map();
@@ -320,7 +323,7 @@ class MessagesService {
    * Reply to a message
    * All replies flow through sendMessage with quoting
    */
-  async reply(message, content, options = {}) {
+  async reply(message, content, options: any = {}) {
     // The chat the message really arrived in. message.chatId / message.from are the
     // ids commands see (phone-number spelling) and are only a fallback here.
     const jid = message?._baileys?.key?.remoteJid || message?.key?.remoteJid || message?.chatId || message?.from;

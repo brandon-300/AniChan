@@ -1,5 +1,8 @@
 import mongoose from 'mongoose';
 
+// Type-only: models carry custom statics/methods and loosely-typed docs (migrated from JS).
+type AnyModel = mongoose.Model<any> & Record<string, any>;
+
 const AnswerSchema = new mongoose.Schema({
   question: { type: String, required: true, maxlength: 300 },
   answer: { type: String, enum: ['yes', 'no', 'idk', 'prob', 'probnot'], required: true },
@@ -51,4 +54,4 @@ const AkinatorSessionSchema = new mongoose.Schema({
 AkinatorSessionSchema.index({ chatId: 1, userId: 1 }, { unique: true, name: 'akinator_chat_user_unique' });
 AkinatorSessionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0, name: 'akinator_session_ttl' });
 
-export default mongoose.models.AkinatorSession || mongoose.model('AkinatorSession', AkinatorSessionSchema);
+export default (mongoose.models.AkinatorSession || mongoose.model('AkinatorSession', AkinatorSessionSchema)) as AnyModel;

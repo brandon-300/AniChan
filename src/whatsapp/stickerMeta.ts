@@ -38,7 +38,7 @@ function packId(pack, author) {
   return crypto.createHash('sha1').update(`${pack}\u0000${author}`).digest('hex');
 }
 
-export function buildExif({ pack, author, emojis }) {
+export function buildExif({ pack, author, emojis }: any) {
   const json = Buffer.from(JSON.stringify({
     'sticker-pack-id': packId(pack, author),
     'sticker-pack-name': pack,
@@ -58,7 +58,7 @@ export function buildExif({ pack, author, emojis }) {
  * a webp (the caller then converts it first) or node-webpmux is unavailable.
  * Throws if the webp is corrupt; the caller sends the original in that case.
  */
-export async function embedStickerExif(buffer, { pack, author, emojis } = {}) {
+export async function embedStickerExif(buffer, { pack, author, emojis }: any = {}) {
   if (!isWebp(buffer)) return null;
   const Image = await loadWebpmux();
   if (!Image) return null;

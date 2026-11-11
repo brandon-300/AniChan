@@ -26,6 +26,9 @@
 // document as expired (and deleting it itself) rather than trusting the
 // document's mere existence.
 import mongoose from 'mongoose';
+
+// Type-only: models carry custom statics/methods and loosely-typed docs (migrated from JS).
+type AnyModel = mongoose.Model<any> & Record<string, any>;
 const AgeVerificationSchema = new mongoose.Schema({
   // Same WhatsApp id format used as User.id (e.g. "234801234567@c.us").
   id: { type: String, required: true, unique: true },
@@ -35,4 +38,4 @@ const AgeVerificationSchema = new mongoose.Schema({
   expiresAt: { type: Date, required: true, index: { expires: 0 } },
 });
 
-export default mongoose.model('AgeVerification', AgeVerificationSchema);
+export default mongoose.model('AgeVerification', AgeVerificationSchema) as AnyModel;

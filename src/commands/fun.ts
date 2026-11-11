@@ -150,7 +150,7 @@ async function fetchMemeSource(targetMsg) {
       const isImage = base.startsWith('image');
 
       if (!isImage) {
-        const err = new Error('Reply is not an image or sticker');
+        const err: any = new Error('Reply is not an image or sticker');
         err.code = 'NOT_IMAGE';
         throw err; // no point retrying — a different file type won't change on re-download
       }
@@ -260,7 +260,7 @@ async function sendAnimatedMemeSticker(client, msg, chat, source, topText, botto
   }
 
   if (webpBuffer.length > MAX_ANIMATED_STICKER_BYTES) {
-    const err = new Error(`animated sticker still too large after quality reduction (${webpBuffer.length} bytes)`);
+    const err: any = new Error(`animated sticker still too large after quality reduction (${webpBuffer.length} bytes)`);
     err.code = 'ANIMATED_TOO_LARGE';
     throw err;
   }

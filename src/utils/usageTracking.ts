@@ -23,7 +23,7 @@ async function recordCommandUsage(groupId, userId, command) {
 }
 
 function recordApiCall() {
-  const ctx = getCurrentContext();
+  const ctx: any = getCurrentContext();
   if (!ctx) return;
   CommandUsage.findOneAndUpdate(
     { groupId: ctx.groupId, userId: ctx.userId, command: ctx.command },
@@ -46,11 +46,11 @@ function instrumentHttpClients() {
   if (instrumented) return;
   instrumented = true;
 
-  axios.interceptors.request.use(config => {
+  axios.interceptors.request.use((config: any) => {
     const startedAt = Date.now();
     config.__loggerStartedAt = startedAt;
     const url = `${config.baseURL || ''}${config.url || ''}`;
-    const ctx = getCurrentContext();
+    const ctx: any = getCurrentContext();
     logger.write('INFO', 'api.request.start', requestContext('axios', config.method, url, {
       command: ctx?.command || null,
       responseType: config.responseType || null,
@@ -63,9 +63,9 @@ function instrumentHttpClients() {
   });
 
   axios.interceptors.response.use(response => {
-    const config = response.config || {};
+    const config: any = response.config || {};
     const url = `${config.baseURL || ''}${config.url || ''}`;
-    const ctx = getCurrentContext();
+    const ctx: any = getCurrentContext();
     logger.write('INFO', 'api.request.end', requestContext('axios', config.method, url, {
       command: ctx?.command || null,
       status: response.status,
@@ -76,7 +76,7 @@ function instrumentHttpClients() {
   }, err => {
     const config = err.config || {};
     const url = `${config.baseURL || ''}${config.url || ''}`;
-    const ctx = getCurrentContext();
+    const ctx: any = getCurrentContext();
     logger.error('api.request.failed', err, requestContext('axios', config.method, url, {
       command: ctx?.command || null,
       status: err.response?.status || null,
@@ -87,11 +87,11 @@ function instrumentHttpClients() {
 
   const originalFetch = global.fetch;
   if (typeof originalFetch === 'function') {
-    global.fetch = function patchedFetch(input, init = {}) {
+    global.fetch = function patchedFetch(input: any, init: any = {}) {
       const url = typeof input === 'string' ? input : input?.url;
       const method = init.method || input?.method || 'GET';
       const startedAt = Date.now();
-      const ctx = getCurrentContext();
+      const ctx: any = getCurrentContext();
       logger.write('INFO', 'api.request.start', requestContext('fetch', method, url, { command: ctx?.command || null }));
       recordApiCall();
       return originalFetch.apply(this, arguments).then(response => {

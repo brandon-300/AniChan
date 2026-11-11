@@ -220,7 +220,7 @@ async function processAIResponse(msg, content, command, personaId = 'default') {
       try {
         const quoted = await msg.getQuotedMessage();
         if (quoted.id) {
-          await aiReactions.addReaction(msg, quoted.id, emoji);
+          await (aiReactions as any).addReaction(msg, quoted.id, emoji);
         }
       } catch (err) {
         console.error('Error adding reaction:', err.message);
@@ -235,7 +235,7 @@ async function processAIResponse(msg, content, command, personaId = 'default') {
     
     try {
       const { aiStickers } = await import('./aiStickers.js');
-      await aiStickers.sendStickerByNumber(msg, stickerNum);
+      await (aiStickers as any).sendStickerByNumber(msg, stickerNum);
     } catch (err) {
       console.error('Error sending sticker:', err.message);
     }

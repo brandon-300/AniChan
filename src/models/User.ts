@@ -1,5 +1,8 @@
 
 import mongoose from 'mongoose';
+
+// Type-only: models carry custom statics/methods and loosely-typed docs (migrated from JS).
+type AnyModel = mongoose.Model<any> & Record<string, any>;
 const UserSchema = new mongoose.Schema({
   id: { type: String, required: true, unique: true },
   name: { type: String, default: 'Unknown' },
@@ -220,7 +223,7 @@ UserSchema.statics.findOrCreate = async function (id, name) {
   // genuinely brand-new account starts out pending instead of active,
   // while every account that already existed before this feature (and so
   // has no `registration` path stored at all) keeps reading as 'active'.
-  const setOnInsert = {
+  const setOnInsert: any = {
     id,
     registration: { status: 'pending', nameSet: false, dobSet: false, bioSet: false, picSet: false },
   };
@@ -251,4 +254,4 @@ UserSchema.statics.findOrCreate = async function (id, name) {
   return user;
 };
 
-export default mongoose.model('User', UserSchema);
+export default mongoose.model('User', UserSchema) as AnyModel;

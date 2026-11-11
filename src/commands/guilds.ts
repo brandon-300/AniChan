@@ -476,7 +476,7 @@ async function _removeMemberFromGuild(userId) {
     const next = [...remaining].sort((a, b) => {
       const rankDiff = ROLE_RANK[b.role] - ROLE_RANK[a.role];
       if (rankDiff !== 0) return rankDiff;
-      return new Date(a.joinedAt) - new Date(b.joinedAt);
+      return new Date(a.joinedAt).getTime() - new Date(b.joinedAt).getTime();
     })[0];
 
     next.role = 'leader';
@@ -789,7 +789,7 @@ const commands = {
     const sorted = [...guild.members].sort((a, b) => {
       const rankDiff = ROLE_RANK[b.role] - ROLE_RANK[a.role];
       if (rankDiff !== 0) return rankDiff;
-      return new Date(a.joinedAt) - new Date(b.joinedAt);
+      return new Date(a.joinedAt).getTime() - new Date(b.joinedAt).getTime();
     });
 
     const names = await Promise.all(sorted.map(m => resolveNameById(client, m.userId)));
@@ -1224,7 +1224,7 @@ const commands = {
     if (!guild) return msg.reply('❌ Guild not found.');
 
     let text = `🏰 *GUILD UPGRADES* — ${guild.emblem} ${guild.name}\n\n`;
-    for (const [key, info] of Object.entries(Guild.UPGRADE_NAMES)) {
+    for (const [key, info] of Object.entries(Guild.UPGRADE_NAMES as Record<string, any>)) {
       const currentLevel = guild.upgrades[key] || 0;
       const cost = Guild.getUpgradeCost(currentLevel);
       text += `${info.label} — Level ${currentLevel}/${Guild.UPGRADE_MAX_LEVEL}\n`;
@@ -1312,7 +1312,7 @@ const commands = {
     if (!guild) return msg.reply('❌ Guild not found.');
 
     let text = `🛍️ *GUILD SHOP* — ${guild.emblem} ${guild.name}\n\n`;
-    for (const [key, banner] of Object.entries(Guild.SHOP_BANNERS)) {
+    for (const [key, banner] of Object.entries(Guild.SHOP_BANNERS as Record<string, any>)) {
       const owned = guild.ownedBanners.includes(key);
       text += `${banner.top}\n`;
       text += `*${banner.name} Banner* — ${owned ? '✅ Owned' : `💰 ${formatNum(banner.cost)}`}\n`;

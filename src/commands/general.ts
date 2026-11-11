@@ -1,4 +1,7 @@
 
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath, pathToFileURL } from 'url';
 import BotState from '../models/BotState.js';
 import CommandUsage from '../models/CommandUsage.js';
 import Group from '../models/Group.js';
@@ -20,6 +23,28 @@ async function requireAdminHere(msg) {
   const ok = await isAdmin(msg);
   if (!ok) { await msg.reply('❌ Admins only!'); return false; }
   return true;
+}
+
+// Counts the commands the dispatcher in src/index.ts actually registers: every
+// exported function in commands/*.ts (or *.js when running compiled output)
+// whose name doesn't start with "_", de-duplicated case-insensitively — the
+// same rule the loader uses. Modules are already loaded by the dispatcher, so
+// these imports resolve from the module cache.
+async function countRegisteredCommands() {
+  const dir = path.dirname(fileURLToPath(import.meta.url));
+  const names = new Set<string>();
+  for (const file of fs.readdirSync(dir)) {
+    if (!file.endsWith('.ts') && !file.endsWith('.js')) continue;
+    try {
+      const mod: any = await import(pathToFileURL(path.join(dir, file)).href);
+      for (const [name, fn] of Object.entries(mod.default || mod)) {
+        if (typeof fn === 'function' && !name.startsWith('_')) names.add(name.toLowerCase());
+      }
+    } catch {
+      // A command file that failed to load at startup isn't registered, so it isn't counted.
+    }
+  }
+  return names.size;
 }
 
 // Same visual language as .profile (commands/economy.js) and .feedback
@@ -64,7 +89,7 @@ async function resolveGroupName(client, groupId) {
 
 // Shared by both the manual .stats command and the scheduled daily digest
 // (see _maybeSendDailyStats below) so the two can never drift apart.
-async function buildStatsReport(client, { isDigest = false } = {}) {
+async function buildStatsReport(client, { isDigest = false }: any = {}) {
   const groups = await Group.find({}).lean();
 
   // Two aggregations across the whole CommandUsage collection instead of
@@ -125,7 +150,7 @@ async function buildStatsReport(client, { isDigest = false } = {}) {
     `╭━━━★彡 ${doubleStruck('BOT STATS')} 彡★━━━╮`,
     '',
     statLine('Uptime', uptime),
-    statLine('Commands', countRegisteredCommands()),
+    statLine('Commands', await countRegisteredCommands()),
     statLine('Registered users', userCount ?? 'N/A'),
     statLine('Memory', `${memMb} MB`),
     statLine('Node', process.version),

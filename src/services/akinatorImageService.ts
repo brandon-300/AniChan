@@ -234,7 +234,7 @@ async function lookupAniList(candidateName, animeTitle) {
 let jikanQueue = Promise.resolve();
 let lastJikanRequestAt = 0;
 
-function jikanRequest(url, params) {
+function jikanRequest(url, params?) {
   const request = jikanQueue.then(async () => {
     const delay = Math.max(0, AKINATOR_JIKAN_MIN_INTERVAL_MS - (Date.now() - lastJikanRequestAt));
     if (delay) await wait(delay);

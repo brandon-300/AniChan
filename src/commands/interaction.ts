@@ -245,7 +245,7 @@ async function resolveTarget(msg) {
 // NO_TARGET_MSG). `requireTarget: false` (the default) reproduces the old
 // buildSelf behavior when no target is given, but — unlike buildSelf —
 // now actually honors a target when one is provided.
-async function buildAction(msg, { solo, pair, requireTarget = false }) {
+async function buildAction(msg, { solo, pair, requireTarget = false }: any) {
   const contact = await msg.getContact();
   const target = await resolveTarget(msg);
   const senderTag = mentionTag(contact);

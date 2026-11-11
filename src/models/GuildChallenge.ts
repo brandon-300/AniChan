@@ -6,6 +6,9 @@
 // it on one guild would mean keeping a second, easily-out-of-sync copy on
 // the other.
 import mongoose from 'mongoose';
+
+// Type-only: models carry custom statics/methods and loosely-typed docs (migrated from JS).
+type AnyModel = mongoose.Model<any> & Record<string, any>;
 const GuildChallengeSchema = new mongoose.Schema({
   challengerGuildId: { type: String, required: true },
   challengedGuildId: { type: String, required: true },
@@ -29,4 +32,4 @@ const GuildChallengeSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.model('GuildChallenge', GuildChallengeSchema);
+export default mongoose.model('GuildChallenge', GuildChallengeSchema) as AnyModel;
