@@ -294,3 +294,4 @@ The bot's owner-only admin tools (card catalogue management, testing commands, e
 | `.setrules [text]` | Set this group's rules (admin only) |
 | `.ping / .test` | Check the bot is online and its response latency |
 | `.stats` | Full bot + per-group usage stats, incl. daily 8AM WAT digest (owner only, DM only) |
+
