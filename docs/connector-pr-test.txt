@@ -1,0 +1,2 @@
+Connector PR test from a claude/ branch. Safe to delete.
+Second commit to trigger a fresh CI run.
